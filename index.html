@@ -17,6 +17,7 @@
     --btnT:  var(--tg-theme-button-text-color, #fff);
     --gold:  #f0a500;
     --teal:  #4ecdc4;
+    --red:   #ff6b6b;
   }
 
   body {
@@ -26,7 +27,6 @@
     overflow: hidden; user-select: none;
   }
 
-  /* HEADER */
   .header {
     display: flex; justify-content: space-between; align-items: center;
     padding: 10px 16px; background: var(--bg2);
@@ -35,30 +35,52 @@
   .coins-disp { display:flex; align-items:center; gap:6px; font-size:19px; font-weight:700; color:var(--gold); }
   .energy-disp { font-size:13px; color:var(--teal); }
 
-  /* SCREENS */
   .screen { display:none; flex:1; flex-direction:column; overflow-y:auto; }
   .screen.active { display:flex; }
 
-  /* TAP SCREEN */
   .tap-zone {
     flex:1; display:flex; flex-direction:column;
     align-items:center; justify-content:center;
-    gap:14px; padding:16px; position:relative;
+    gap:12px; padding:16px; position:relative;
   }
   .stage-lbl { font-size:12px; color:var(--hint); letter-spacing:1.5px; text-transform:uppercase; }
-  .capy-wrap { position:relative; width:170px; height:170px; display:flex; align-items:center; justify-content:center; }
+
+  .capy-wrap {
+    position:relative; width:160px; height:160px;
+    display:flex; align-items:center; justify-content:center;
+  }
   .capy {
     cursor:pointer; display:flex; align-items:center; justify-content:center;
-    transition:transform 0.07s; filter:drop-shadow(0 6px 20px rgba(0,0,0,0.4));
+    filter:drop-shadow(0 6px 24px rgba(0,0,0,0.45));
+    width:150px; height:150px;
   }
-  .capy:active { transform:scale(0.88) !important; }
-  .tap-hint { font-size:12px; color:var(--hint); margin-top:-6px; }
+  .capy img {
+    width:150px; height:150px;
+    transition: filter 0.5s, opacity 0.5s;
+    pointer-events: none;
+  }
+  .capy img.hungry  { filter: grayscale(60%) brightness(0.75) saturate(0.5); }
+  @keyframes hungerPulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .capy img.starving { filter: grayscale(90%) brightness(0.6); animation: hungerPulse 1.2s infinite; }
+  .capy-img-inner { transition: transform 0.07s; display:flex; }
 
-  /* energy bar */
-  .ebar-wrap { width:100%; max-width:300px; padding:0 4px; }
-  .ebar-row { display:flex; justify-content:space-between; font-size:11px; color:var(--hint); margin-bottom:5px; }
-  .ebar-bg { height:7px; background:rgba(255,255,255,0.09); border-radius:4px; overflow:hidden; }
-  .ebar-fill { height:100%; background:var(--teal); border-radius:4px; transition:width 0.35s; }
+  .hunger-alert {
+    background: rgba(255,107,107,0.15);
+    border: 1px solid rgba(255,107,107,0.4);
+    border-radius:10px; padding:7px 14px;
+    font-size:12px; color:var(--red);
+    width:100%; max-width:300px; text-align:center;
+    display:none;
+  }
+
+  .bars-wrap { width:100%; max-width:300px; padding:0 4px; display:flex; flex-direction:column; gap:8px; }
+  .bar-row { display:flex; justify-content:space-between; font-size:11px; color:var(--hint); margin-bottom:4px; }
+  .bar-bg { height:7px; background:rgba(255,255,255,0.09); border-radius:4px; overflow:hidden; }
+  .bar-fill { height:100%; border-radius:4px; transition:width 0.35s; }
+  .bar-fill-energy { background:var(--teal); }
+  .bar-fill-hunger { background:#f0a500; transition:width 0.35s, background 0.5s; }
+  .bar-fill-hunger.low  { background:#ff9500; }
+  .bar-fill-hunger.crit { background:var(--red); }
 
   .stats-row { display:flex; gap:20px; font-size:13px; color:var(--hint); }
   .stats-row b { color:var(--text); font-weight:600; }
@@ -72,11 +94,9 @@
   }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.75} }
 
-  /* FLOAT NUMBERS */
   .fl { position:fixed; font-size:19px; font-weight:700; pointer-events:none; z-index:999; animation:fup .85s ease-out forwards; }
   @keyframes fup { 0%{opacity:1;transform:translateY(0) scale(1)} 100%{opacity:0;transform:translateY(-75px) scale(0.65)} }
 
-  /* BOTTOM NAV */
   .bnav { display:flex; background:var(--bg2); border-top:1px solid rgba(255,255,255,0.07); flex-shrink:0; }
   .nbtn {
     flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
@@ -86,7 +106,6 @@
   .nbtn .ni { font-size:20px; }
   .nbtn.active { color:var(--btn); }
 
-  /* SHOP */
   .screen-title { padding:14px 16px; font-size:17px; font-weight:700; border-bottom:1px solid rgba(255,255,255,0.07); flex-shrink:0; }
   .shop-list { padding:10px; display:flex; flex-direction:column; gap:9px; }
   .upg-card {
@@ -96,20 +115,19 @@
   }
   .upg-ico { font-size:34px; line-height:1; flex-shrink:0; }
   .upg-info { flex:1; min-width:0; }
-  .upg-name { font-size:14px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .upg-name { font-size:14px; font-weight:600; }
   .upg-desc { font-size:12px; color:var(--hint); margin-top:2px; }
   .upg-lvl  { font-size:11px; color:var(--btn); margin-top:3px; }
   .upg-buy  { display:flex; flex-direction:column; align-items:center; gap:3px; flex-shrink:0; }
   .buy-btn {
     background:var(--btn); color:var(--btnT);
     border:none; border-radius:9px; padding:7px 12px;
-    font-size:13px; font-weight:600; cursor:pointer; min-width:76px; text-align:center; transition:opacity .15s;
+    font-size:13px; font-weight:600; cursor:pointer; min-width:76px; text-align:center;
   }
   .buy-btn:disabled { opacity:.3; cursor:default; }
   .buy-btn.mx { background:rgba(255,255,255,0.1); color:var(--hint); }
   .buy-cost { font-size:11px; color:var(--gold); }
 
-  /* FRIENDS */
   .friends-wrap { padding:14px; display:flex; flex-direction:column; gap:10px; }
   .f-box { background:var(--bg2); border-radius:13px; padding:15px; text-align:center; border:1px solid rgba(255,255,255,0.05); }
   .f-box h3 { font-size:15px; font-weight:600; margin-bottom:5px; }
@@ -120,7 +138,6 @@
   .f-btn-main  { background:var(--btn); color:var(--btnT); }
   .f-btn-ghost { background:rgba(255,255,255,0.08); color:var(--text); margin-top:6px; }
 
-  /* LEADERBOARD */
   .lb-wrap { padding:10px; }
   .lb-item {
     background:var(--bg2); border-radius:11px; padding:11px 14px;
@@ -132,20 +149,19 @@
   .lb-name { flex:1; font-size:13px; }
   .lb-score { font-size:13px; color:var(--gold); font-weight:600; }
 
-  /* MODALS */
   .modal-ov {
     display:none; position:fixed; inset:0;
-    background:rgba(0,0,0,0.72); z-index:200;
+    background:rgba(0,0,0,0.75); z-index:200;
     align-items:center; justify-content:center; padding:20px;
   }
   .modal-ov.show { display:flex; }
-  .modal-box { background:var(--bg2); border-radius:18px; padding:24px; text-align:center; max-width:290px; width:100%; }
+  .modal-box { background:var(--bg2); border-radius:18px; padding:24px; text-align:center; max-width:300px; width:100%; }
   .modal-box h2 { font-size:18px; margin-bottom:7px; }
   .modal-box p  { font-size:13px; color:var(--hint); margin-bottom:14px; }
   .modal-amt { font-size:34px; font-weight:700; color:var(--gold); margin-bottom:18px; }
   .modal-btn { background:var(--btn); color:var(--btnT); border:none; border-radius:11px; padding:13px 28px; font-size:14px; font-weight:600; cursor:pointer; }
+  .modal-btn-red { background:var(--red); }
 
-  /* STARS SHOP */
   .stars-grid { padding:10px; display:flex; flex-direction:column; gap:9px; }
   .star-item {
     background:var(--bg2); border-radius:13px; padding:13px 14px;
@@ -154,7 +170,13 @@
   }
   .star-info h4 { font-size:14px; font-weight:600; margin-bottom:3px; }
   .star-info p  { font-size:12px; color:var(--hint); }
-  .star-btn { background:#ffd700; color:#000; border:none; border-radius:9px; padding:8px 14px; font-size:13px; font-weight:700; cursor:pointer; white-space:nowrap; }
+  .star-btn { background:#ffd700; color:#000; border:none; border-radius:9px; padding:8px 14px; font-size:13px; font-weight:700; cursor:pointer; }
+
+  .ad-btn {
+    background:rgba(255,255,255,0.08); color:var(--text);
+    border:1px solid rgba(255,255,255,0.15); border-radius:10px;
+    padding:9px 16px; font-size:13px; cursor:pointer; margin-top:4px;
+  }
 </style>
 </head>
 <body>
@@ -165,7 +187,8 @@
     <h2>🦫 Как играть</h2>
     <div style="text-align:left;font-size:13px;color:var(--hint);line-height:1.9;margin:10px 0 16px">
       <div>🥕 <b style="color:var(--text)">Тапай на Васю</b> — получай морковки</div>
-      <div>⚡ <b style="color:var(--text)">Аппетит</b> — тратится на тапы, сам восстанавливается</div>
+      <div>⚡ <b style="color:var(--text)">Аппетит</b> — тратится на тапы, восстанавливается сам</div>
+      <div>🍖 <b style="color:var(--text)">Сытость</b> — падает если не играть. Голодный Вася даёт меньше морковок!</div>
       <div>🛒 <b style="color:var(--text)">Магазин</b> — покупай улучшения за морковки</div>
       <div>👨‍🍳 <b style="color:var(--text)">Повар / Вилла</b> — морковки идут сами, даже без тапов</div>
       <div>👥 <b style="color:var(--text)">Друзья</b> — +500 🥕 за каждого приглашённого</div>
@@ -180,10 +203,26 @@
 <!-- OFFLINE MODAL -->
 <div class="modal-ov" id="ofModal">
   <div class="modal-box">
-    <h2>Вася работал! 🦫</h2>
+    <h2>Вася ждал тебя! 🦫</h2>
     <p>Пока тебя не было, Вася собирал морковки:</p>
     <div class="modal-amt" id="ofAmt">+0 🥕</div>
-    <button class="modal-btn" onclick="closeModal()">Забрать!</button>
+    <button class="modal-btn" onclick="closeOfflineModal()">Забрать!</button>
+  </div>
+</div>
+
+<!-- HUNGER MODAL -->
+<div class="modal-ov" id="hungerModal">
+  <div class="modal-box">
+    <div style="font-size:64px;margin-bottom:8px">😢</div>
+    <h2>Вася голодает!</h2>
+    <p>Сытость упала до критического уровня.<br>Вася даёт вдвое меньше морковок!</p>
+    <div style="margin:14px 0 18px;font-size:13px;color:var(--hint)">
+      Тапай чтобы покормить Васю.<br>Или посмотри рекламу — +50% сытости сразу.
+    </div>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <button class="modal-btn modal-btn-red" onclick="document.getElementById('hungerModal').classList.remove('show')">Буду кормить!</button>
+      <button class="modal-btn" onclick="feedByAd()">📺 Реклама (+50%)</button>
+    </div>
   </div>
 </div>
 
@@ -203,68 +242,38 @@
 <div class="screen active" id="sMain">
   <div class="tap-zone">
     <div class="stage-lbl" id="stageLbl">Стадия: Васятка</div>
+
     <div class="capy-wrap">
       <div class="capy" id="capy" onclick="onTap(event)">
-        <svg width="150" height="150" viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
-          <!-- тело -->
-          <ellipse cx="70" cy="92" rx="50" ry="34" fill="#8B6914"/>
-          <!-- голова -->
-          <ellipse cx="70" cy="56" rx="33" ry="27" fill="#9B7A1E"/>
-          <!-- уши -->
-          <ellipse cx="44" cy="34" rx="11" ry="9" fill="#8B6914"/>
-          <ellipse cx="96" cy="34" rx="11" ry="9" fill="#8B6914"/>
-          <ellipse cx="44" cy="34" rx="6" ry="5" fill="#C4956A"/>
-          <ellipse cx="96" cy="34" rx="6" ry="5" fill="#C4956A"/>
-          <!-- морда светлая -->
-          <ellipse cx="70" cy="64" rx="21" ry="16" fill="#C4956A"/>
-          <!-- нос -->
-          <ellipse cx="70" cy="58" rx="8" ry="6" fill="#5C3D0A"/>
-          <circle cx="67" cy="58" r="1.5" fill="#3a2005"/>
-          <circle cx="73" cy="58" r="1.5" fill="#3a2005"/>
-          <!-- глаза -->
-          <circle cx="56" cy="50" r="6.5" fill="#2C1A06"/>
-          <circle cx="84" cy="50" r="6.5" fill="#2C1A06"/>
-          <circle cx="58" cy="48" r="2.2" fill="white"/>
-          <circle cx="86" cy="48" r="2.2" fill="white"/>
-          <!-- рот -->
-          <path d="M62 68 Q70 75 78 68" stroke="#5C3D0A" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-          <!-- щёки румяные -->
-          <ellipse cx="48" cy="62" rx="7" ry="4" fill="#e07060" opacity="0.3"/>
-          <ellipse cx="92" cy="62" rx="7" ry="4" fill="#e07060" opacity="0.3"/>
-          <!-- передние лапы -->
-          <ellipse cx="36" cy="114" rx="15" ry="9" fill="#7A5A10"/>
-          <ellipse cx="104" cy="114" rx="15" ry="9" fill="#7A5A10"/>
-          <!-- задние лапы -->
-          <ellipse cx="52" cy="120" rx="11" ry="7" fill="#7A5A10"/>
-          <ellipse cx="88" cy="120" rx="11" ry="7" fill="#7A5A10"/>
-          <!-- пальцы -->
-          <ellipse cx="30" cy="118" rx="3" ry="2" fill="#5C3D0A"/>
-          <ellipse cx="37" cy="120" rx="3" ry="2" fill="#5C3D0A"/>
-          <ellipse cx="44" cy="118" rx="3" ry="2" fill="#5C3D0A"/>
-          <ellipse cx="96" cy="118" rx="3" ry="2" fill="#5C3D0A"/>
-          <ellipse cx="103" cy="120" rx="3" ry="2" fill="#5C3D0A"/>
-          <ellipse cx="110" cy="118" rx="3" ry="2" fill="#5C3D0A"/>
-          <!-- хвостик -->
-          <ellipse cx="118" cy="96" rx="7" ry="5" fill="#7A5A10"/>
-        </svg>
+        <div class="capy-img-inner">
+          <img id="capyImg"
+            src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f9ab.svg"
+            alt="Вася" width="150" height="150" draggable="false">
+        </div>
       </div>
     </div>
-    <div class="tap-hint">Нажимай на Васю, чтобы кормить!</div>
-    <div class="ebar-wrap">
-      <div class="ebar-row"><span>⚡ Аппетит</span><span id="eTxt">500/500</span></div>
-      <div class="ebar-bg"><div class="ebar-fill" id="eFill" style="width:100%"></div></div>
+
+    <div class="hunger-alert" id="hungerAlert">😢 Вася голодает! Тапай чтобы покормить!</div>
+    <div class="tap-hint" id="tapHint">Нажимай на Васю, чтобы кормить!</div>
+
+    <div class="bars-wrap">
+      <div>
+        <div class="bar-row"><span>⚡ Аппетит</span><span id="eTxt">500/500</span></div>
+        <div class="bar-bg"><div class="bar-fill bar-fill-energy" id="eFill" style="width:100%"></div></div>
+      </div>
+      <div>
+        <div class="bar-row"><span>🍖 Сытость</span><span id="hungerTxt">100/100</span></div>
+        <div class="bar-bg"><div class="bar-fill bar-fill-hunger" id="hFill" style="width:100%"></div></div>
+      </div>
     </div>
+
     <div class="stats-row">
       <div>+<b id="tpDisp">1</b> за тап</div>
       <div>+<b id="psDisp">0</b>/сек</div>
     </div>
+
     <div class="evolve-banner" id="evBanner"></div>
-    <button onclick="watchAd()" style="
-      background:rgba(255,255,255,0.08); color:var(--text);
-      border:1px solid rgba(255,255,255,0.15); border-radius:10px;
-      padding:9px 16px; font-size:13px; cursor:pointer; margin-top:4px;">
-      📺 Смотреть рекламу (+200 ⚡)
-    </button>
+    <button class="ad-btn" onclick="watchAd()">📺 Смотреть рекламу (+200 ⚡)</button>
   </div>
 </div>
 
@@ -323,25 +332,24 @@
 </div>
 
 <script>
-/* ── КОНФИГ — замени на свои значения ── */
 const CFG = {
-  BACKEND: 'https://ТВОЙ_АДРЕС_RAILWAY.up.railway.app', // ← адрес Railway
-  BOT:     'kapibarabigclub_bot',   // ← username бота
-  APP:     'kapibarabigclub',       // ← short_name Mini App
+  BACKEND: 'https://ТВОЙ_АДРЕС.up.railway.app',
+  BOT:     'kapibarabigclub_bot',
+  APP:     'kapibarabigclub',
   MAX_OFFLINE_H: 8,
   SAVE_EVERY_S:  15,
+  HUNGER_DRAIN_PER_HOUR:  5,
+  HUNGER_RESTORE_PER_TAP: 0.3,
 };
 
-/* ── СТАДИИ ── */
 const STAGES = [
-  { name:'Васятка',  need:0,    q:'Только учусь есть...' },
-  { name:'Пухляш',   need:1e3,  q:'Неплохо, неплохо.' },
-  { name:'Толстяк',  need:1e4,  q:'Морковка — смысл жизни.' },
-  { name:'Босс',     need:1e5,  q:'Все морковки мои.' },
-  { name:'Легенда',  need:1e6,  q:'Я и есть капибара.' },
+  { name:'Васятка', need:0    },
+  { name:'Пухляш',  need:1e3  },
+  { name:'Толстяк', need:1e4  },
+  { name:'Босс',    need:1e5  },
+  { name:'Легенда', need:1e6  },
 ];
 
-/* ── УЛУЧШЕНИЯ ── */
 const UPGS = [
   { id:'bowl',   name:'Миска Васи',      ico:'🥣', desc:'+1 сила тапа',       eff:'tap', val:1,   costs:[100,500,2000,10000,50000] },
   { id:'collar', name:'Золотой ошейник', ico:'📿', desc:'+2 сила тапа',       eff:'tap', val:2,   costs:[300,1500,7500,37500,187500] },
@@ -350,25 +358,20 @@ const UPGS = [
   { id:'villa',  name:'Вилла',           ico:'🏠', desc:'+5 морк./сек',       eff:'ps',  val:5,   costs:[2000,10000,50000,250000,1250000] },
 ];
 
-/* ── СОСТОЯНИЕ ── */
 let S = {
   coins:0, total:0, energy:500, maxE:500,
-  tap:1, ps:0,
+  tap:1, ps:0, hunger:100,
   upgs:{ bowl:0, collar:0, pool:0, chef:0, villa:0 },
   stage:0, refs:0,
   savedAt: Date.now(),
 };
 
 let tg = window.Telegram?.WebApp;
-let userId = null;
-let refUrl  = '';
-let lastTick = Date.now();
-let saveAcc  = 0;
-let psAcc    = 0;
-let bonusTap = 1;
-let bonusEnd = 0;
+let userId = null, refUrl = '';
+let lastTick = Date.now(), saveAcc = 0, psAcc = 0;
+let bonusTap = 1, bonusEnd = 0;
+let hungerModalShown = false;
 
-/* ── INIT ── */
 (async () => {
   if (tg) { tg.ready(); tg.expand(); userId = tg.initDataUnsafe?.user?.id; }
   await loadState();
@@ -381,7 +384,6 @@ let bonusEnd = 0;
   loop();
 })();
 
-/* ── SAVE / LOAD ── */
 async function loadState() {
   return new Promise(res => {
     const local = () => {
@@ -391,23 +393,30 @@ async function loadState() {
     if (tg?.CloudStorage) {
       tg.CloudStorage.getItem('ks', (e,v) => {
         if (!e && v) { try { apply(JSON.parse(v)); } catch(err){} }
-        else local();
-        res();
+        else local(); res();
       });
     } else local();
   });
 }
 
 function apply(d) {
-  const now = Date.now();
+  const now  = Date.now();
   const offS = Math.min((now-(d.savedAt||now))/1000, CFG.MAX_OFFLINE_H*3600);
-  Object.assign(S, d); S.savedAt = now;
+  Object.assign(S, d);
+  S.savedAt = now;
+  if (S.hunger === undefined) S.hunger = 100;
   recalc();
   S.energy = Math.min(S.maxE, S.energy + offS);
+  const hungerLost = (offS / 3600) * CFG.HUNGER_DRAIN_PER_HOUR;
+  S.hunger = Math.max(0, S.hunger - hungerLost);
   if (offS > 60 && S.ps > 0) {
-    const earn = Math.floor(S.ps * offS);
+    const earn = Math.floor(S.ps * offS * hungerMultiplier());
     S.coins += earn; S.total += earn;
-    showModal(`+${fmt(earn)} 🥕`, Math.floor(offS/60));
+    if (earn > 0) showOfflineModal(`+${fmt(earn)} 🥕`);
+  }
+  if (S.hunger < 20 && offS > 300) {
+    setTimeout(() => document.getElementById('hungerModal').classList.add('show'), 800);
+    hungerModalShown = true;
   }
 }
 
@@ -418,12 +427,10 @@ function save() {
   if (tg?.CloudStorage) tg.CloudStorage.setItem('ks', j, ()=>{});
 }
 
-/* ── RECALC STATS ── */
 function recalc() {
   let tap=1, ps=0, maxE=500;
   for (const u of UPGS) {
-    const lv = S.upgs[u.id]||0;
-    if (!lv) continue;
+    const lv = S.upgs[u.id]||0; if (!lv) continue;
     if (u.eff==='tap') tap  += u.val * lv;
     if (u.eff==='ps')  ps   += u.val * lv;
     if (u.eff==='ene') maxE += u.val * lv;
@@ -432,16 +439,30 @@ function recalc() {
   S.energy = Math.min(S.energy, S.maxE);
 }
 
-/* ── GAME LOOP ── */
+function hungerMultiplier() {
+  if (S.hunger >= 50) return 1.0;
+  if (S.hunger >= 20) return 0.75;
+  return 0.5;
+}
+
 function loop() {
   const now = Date.now();
   const dt  = (now - lastTick) / 1000;
   lastTick  = now;
 
-  psAcc += S.ps * dt;
+  const hm = hungerMultiplier();
+  psAcc += S.ps * dt * hm;
   if (psAcc >= 1) { const e=Math.floor(psAcc); S.coins+=e; S.total+=e; psAcc-=e; }
 
   if (S.energy < S.maxE) S.energy = Math.min(S.maxE, S.energy + dt);
+
+  S.hunger = Math.max(0, S.hunger - (CFG.HUNGER_DRAIN_PER_HOUR / 3600) * dt);
+
+  if (S.hunger < 20 && !hungerModalShown) {
+    hungerModalShown = true;
+    document.getElementById('hungerModal').classList.add('show');
+  }
+  if (S.hunger >= 30) hungerModalShown = false;
 
   saveAcc += dt;
   if (saveAcc >= CFG.SAVE_EVERY_S) { save(); saveAcc=0; }
@@ -450,21 +471,22 @@ function loop() {
   requestAnimationFrame(loop);
 }
 
-/* ── TAP ── */
 function onTap(ev) {
   if (S.energy < 1) {
     fl('😴 нет аппетита', ev.clientX, ev.clientY, '#888');
     tg?.HapticFeedback?.notificationOccurred('error');
     return;
   }
+  S.hunger = Math.min(100, S.hunger + CFG.HUNGER_RESTORE_PER_TAP);
   const mult = (Date.now() < bonusEnd) ? bonusTap : 1;
-  const earn = S.tap * mult;
+  const hm   = hungerMultiplier();
+  const earn = Math.max(1, Math.floor(S.tap * mult * hm));
   S.coins += earn; S.total += earn;
   S.energy = Math.max(0, S.energy - 1);
-  fl(`+${earn} 🥕`, ev.clientX, ev.clientY, '#f0a500');
-  const c = document.getElementById('capy');
-  c.style.transform='scale(0.88)';
-  setTimeout(()=>c.style.transform='', 75);
+  fl(`+${earn} 🥕`, ev.clientX, ev.clientY, hm < 1 ? '#ff9500' : '#f0a500');
+  const inner = document.querySelector('.capy-img-inner');
+  inner.style.transform='scale(0.88)';
+  setTimeout(()=>inner.style.transform='', 75);
   tg?.HapticFeedback?.impactOccurred('light');
   checkEvo();
 }
@@ -477,7 +499,6 @@ function fl(txt, x, y, col) {
   setTimeout(()=>el.remove(), 870);
 }
 
-/* ── EVOLUTION ── */
 function checkEvo() {
   for (let i=STAGES.length-1; i>=0; i--) {
     if (S.total >= STAGES[i].need) {
@@ -494,15 +515,30 @@ function checkEvo() {
   }
 }
 
-/* ── UI UPDATE ── */
 function ui() {
-  document.getElementById('cDisp').textContent   = fmt(Math.floor(S.coins));
-  document.getElementById('eDisp').textContent   = `${Math.floor(S.energy)}/${S.maxE}`;
-  document.getElementById('eTxt').textContent    = `${Math.floor(S.energy)}/${S.maxE}`;
-  document.getElementById('eFill').style.width   = (S.energy/S.maxE*100)+'%';
-  document.getElementById('tpDisp').textContent  = S.tap;
-  document.getElementById('psDisp').textContent  = S.ps;
-  document.getElementById('stageLbl').textContent= `Стадия: ${STAGES[S.stage].name}`;
+  const h = Math.floor(S.hunger);
+  document.getElementById('cDisp').textContent  = fmt(Math.floor(S.coins));
+  document.getElementById('eDisp').textContent  = `${Math.floor(S.energy)}/${S.maxE}`;
+  document.getElementById('eTxt').textContent   = `${Math.floor(S.energy)}/${S.maxE}`;
+  document.getElementById('eFill').style.width  = (S.energy/S.maxE*100)+'%';
+  document.getElementById('tpDisp').textContent = S.tap;
+  document.getElementById('psDisp').textContent = S.ps;
+  document.getElementById('stageLbl').textContent = `Стадия: ${STAGES[S.stage].name}`;
+
+  document.getElementById('hungerTxt').textContent = `${h}/100`;
+  const hFill = document.getElementById('hFill');
+  hFill.style.width = h + '%';
+  hFill.className = 'bar-fill bar-fill-hunger' + (h<20?' crit':h<50?' low':'');
+
+  const img = document.getElementById('capyImg');
+  img.className = h < 20 ? 'starving' : h < 50 ? 'hungry' : '';
+
+  document.getElementById('hungerAlert').style.display = h < 30 ? 'block' : 'none';
+
+  const hint = document.getElementById('tapHint');
+  if      (h < 20) hint.textContent = '😢 Вася очень голоден! Тапай скорее!';
+  else if (h < 50) hint.textContent = '😐 Вася немного голоден...';
+  else             hint.textContent = 'Нажимай на Васю, чтобы кормить!';
 }
 
 function fmt(n) {
@@ -512,15 +548,12 @@ function fmt(n) {
   return String(n);
 }
 
-/* ── SHOP ── */
 function renderShop() {
   const c = document.getElementById('shopList');
   c.innerHTML = '';
   for (const u of UPGS) {
-    const lv = S.upgs[u.id]||0;
-    const mx = lv >= 5;
-    const cost = mx ? 0 : u.costs[lv];
-    const ok   = !mx && S.coins >= cost;
+    const lv=S.upgs[u.id]||0, mx=lv>=5;
+    const cost=mx?0:u.costs[lv], ok=!mx&&S.coins>=cost;
     c.insertAdjacentHTML('beforeend',`
       <div class="upg-card">
         <div class="upg-ico">${u.ico}</div>
@@ -549,64 +582,60 @@ function refreshBtns() {
 }
 
 function buy(id) {
-  const u = UPGS.find(x=>x.id===id);
-  const lv = S.upgs[id]||0;
-  if (lv>=5 || S.coins < u.costs[lv]) return;
-  S.coins -= u.costs[lv];
-  S.upgs[id] = lv+1;
+  const u=UPGS.find(x=>x.id===id), lv=S.upgs[id]||0;
+  if (lv>=5||S.coins<u.costs[lv]) return;
+  S.coins-=u.costs[lv]; S.upgs[id]=lv+1;
   recalc(); renderShop(); save();
   tg?.HapticFeedback?.impactOccurred('medium');
 }
 
-/* ── STARS ── */
 function buyStars(product) {
   const links = {
-    energy: 'https://t.me/invoice/energy_refill_link',
-    double: 'https://t.me/invoice/double_tap_link',
-    skin:   'https://t.me/invoice/gold_skin_link',
+    energy:'https://t.me/invoice/energy_refill_link',
+    double:'https://t.me/invoice/double_tap_link',
+    skin:  'https://t.me/invoice/gold_skin_link',
   };
   if (tg?.openInvoice) {
     tg.openInvoice(links[product], (status) => {
-      if (status === 'paid') {
-        if (product === 'energy') { S.energy = S.maxE; tg?.showAlert?.('⚡ Энергия восстановлена!'); }
-        if (product === 'double') { bonusTap=2; bonusEnd=Date.now()+3600000; tg?.showAlert?.('🥕×2 активирован на 1 час!'); }
-        if (product === 'skin')   { tg?.showAlert?.('🏅 Золотая Вася активирована!'); }
+      if (status==='paid') {
+        if (product==='energy') { S.energy=S.maxE; tg?.showAlert?.('⚡ Энергия восстановлена!'); }
+        if (product==='double') { bonusTap=2; bonusEnd=Date.now()+3600000; tg?.showAlert?.('🥕×2 активирован на 1 час!'); }
+        if (product==='skin')   tg?.showAlert?.('🏅 Золотая Вася активирована!');
       }
     });
-  } else {
-    window.open(links[product]);
-  }
+  } else window.open(links[product]);
 }
 
-/* ── ADS ── */
 let AdController;
 async function initAds() {
-  try {
-    AdController = await window.Adsgram?.init({ blockId: "ТВОЙ_BLOCK_ID", debug: false });
-  } catch(e) {}
+  try { AdController = await window.Adsgram?.init({ blockId:'ТВОЙ_BLOCK_ID', debug:false }); } catch(e) {}
 }
 async function watchAd() {
   if (!AdController) { tg?.showAlert?.('Реклама пока недоступна'); return; }
   try {
-    const result = await AdController.show();
-    if (result.done) {
-      S.energy = Math.min(S.maxE, S.energy + 200);
-      tg?.showAlert?.('⚡ +200 энергии за просмотр!');
-    }
-  } catch(e) { tg?.showAlert?.('Реклама не загрузилась. Попробуй позже.'); }
+    const r = await AdController.show();
+    if (r.done) { S.energy=Math.min(S.maxE,S.energy+200); tg?.showAlert?.('⚡ +200 энергии!'); }
+  } catch(e) { tg?.showAlert?.('Реклама не загрузилась.'); }
+}
+async function feedByAd() {
+  document.getElementById('hungerModal').classList.remove('show');
+  if (!AdController) { S.hunger=Math.min(100,S.hunger+50); tg?.showAlert?.('🍖 +50% сытости!'); return; }
+  try {
+    const r = await AdController.show();
+    if (r.done) { S.hunger=Math.min(100,S.hunger+50); tg?.showAlert?.('🍖 Вася наелся! +50% сытости!'); }
+  } catch(e) {}
 }
 initAds();
 
-/* ── LEADERBOARD ── */
 async function loadLb() {
-  const w = document.getElementById('lbWrap');
+  const w=document.getElementById('lbWrap');
   w.innerHTML='<p style="padding:14px;color:var(--hint)">Загрузка...</p>';
   try {
-    const r = await fetch(`${CFG.BACKEND}/leaderboard`);
-    const d = await r.json();
+    const r=await fetch(`${CFG.BACKEND}/leaderboard`);
+    const d=await r.json();
     if (!d.leaders?.length) { w.innerHTML='<p style="padding:14px;color:var(--hint)">Стань первым!</p>'; return; }
     const med=['🥇','🥈','🥉'];
-    w.innerHTML = d.leaders.map((x,i)=>`
+    w.innerHTML=d.leaders.map((x,i)=>`
       <div class="lb-item${x.user_id===userId?' me':''}">
         <div class="lb-rank">${med[i]||(i+1)}</div>
         <div class="lb-name">${esc(x.name)}</div>
@@ -619,55 +648,45 @@ async function loadLb() {
 async function submitScore() {
   if (!userId) return;
   try {
-    await fetch(`${CFG.BACKEND}/score`, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        user_id: userId,
-        name: tg?.initDataUnsafe?.user?.first_name || 'Игрок',
-        score: Math.floor(S.total),
-        init_data: tg?.initData||'',
-      })
+    await fetch(`${CFG.BACKEND}/score`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({user_id:userId,name:tg?.initDataUnsafe?.user?.first_name||'Игрок',score:Math.floor(S.total),init_data:tg?.initData||''})
     });
   } catch {}
 }
 
-/* ── REFERRALS ── */
 async function registerRef(byId) {
-  if (!userId || byId === String(userId)) return;
+  if (!userId||byId===String(userId)) return;
   try {
-    await fetch(`${CFG.BACKEND}/referral`, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ user_id:userId, referred_by:byId, init_data:tg?.initData||'' })
+    await fetch(`${CFG.BACKEND}/referral`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({user_id:userId,referred_by:byId,init_data:tg?.initData||''})
     });
   } catch {}
 }
 
 function shareGame() {
-  const txt = `🦫 Играю в Капибара Клуб! Вася уже «${STAGES[S.stage].name}». Покорми и ты!`;
+  const txt=`🦫 Играю в Капибара Клуб! Вася уже «${STAGES[S.stage].name}». Покорми и ты!`;
   tg?.openTelegramLink?.(`https://t.me/share/url?url=${encodeURIComponent(refUrl)}&text=${encodeURIComponent(txt)}`);
 }
-
 function copyRef() {
   navigator.clipboard?.writeText(refUrl).catch(()=>{});
   tg?.showAlert?.('Ссылка скопирована! 📋');
 }
 
-/* ── NAVIGATION ── */
 function goTo(name) {
-  ['Main','Shop','Board','Friends'].forEach(n => {
-    document.getElementById('s'+n).classList.toggle('active', n===name);
-    document.getElementById('n'+n).classList.toggle('active', n===name);
+  ['Main','Shop','Board','Friends'].forEach(n=>{
+    document.getElementById('s'+n).classList.toggle('active',n===name);
+    document.getElementById('n'+n).classList.toggle('active',n===name);
   });
   if (name==='Shop') refreshBtns();
 }
 
-/* ── MODALS ── */
-function showModal(txt) {
-  document.getElementById('ofAmt').textContent = txt;
+function showOfflineModal(txt) {
+  document.getElementById('ofAmt').textContent=txt;
   document.getElementById('ofModal').classList.add('show');
 }
-function closeModal() { document.getElementById('ofModal').classList.remove('show'); }
-
+function closeOfflineModal() { document.getElementById('ofModal').classList.remove('show'); }
 function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 </script>
 </body>
