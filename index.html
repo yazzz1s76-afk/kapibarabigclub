@@ -1,693 +1,1117 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Капибара Клуб</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<style>
-  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Капибара Клуб</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-  :root {
-    --bg:    var(--tg-theme-bg-color, #1a1a2e);
-    --bg2:   var(--tg-theme-secondary-bg-color, #16213e);
-    --text:  var(--tg-theme-text-color, #eee);
-    --hint:  var(--tg-theme-hint-color, #888);
-    --btn:   var(--tg-theme-button-color, #7c5cbf);
-    --btnT:  var(--tg-theme-button-text-color, #fff);
-    --gold:  #f0a500;
-    --teal:  #4ecdc4;
-    --red:   #ff6b6b;
-  }
+    :root {
+      --bg: var(--tg-theme-bg-color, #1a1a2e);
+      --bg2: var(--tg-theme-secondary-bg-color, #16213e);
+      --text: var(--tg-theme-text-color, #eee);
+      --hint: var(--tg-theme-hint-color, #888);
+      --btn: var(--tg-theme-button-color, #7c5cbf);
+      --btnT: var(--tg-theme-button-text-color, #fff);
+      --gold: #f0a500;
+      --teal: #4ecdc4;
+      --red: #ff6b6b;
+    }
 
-  body {
-    background: var(--bg); color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    height: 100vh; display: flex; flex-direction: column;
-    overflow: hidden; user-select: none;
-  }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      user-select: none;
+    }
 
-  .header {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 10px 16px; background: var(--bg2);
-    border-bottom: 1px solid rgba(255,255,255,0.07); flex-shrink: 0;
-  }
-  .coins-disp { display:flex; align-items:center; gap:6px; font-size:19px; font-weight:700; color:var(--gold); }
-  .energy-disp { font-size:13px; color:var(--teal); }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 16px;
+      background: var(--bg2);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      flex-shrink: 0;
+    }
 
-  .screen { display:none; flex:1; flex-direction:column; overflow-y:auto; }
-  .screen.active { display:flex; }
+    .coins-disp {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--gold);
+    }
 
-  .tap-zone {
-    flex:1; display:flex; flex-direction:column;
-    align-items:center; justify-content:center;
-    gap:12px; padding:16px; position:relative;
-  }
-  .stage-lbl { font-size:12px; color:var(--hint); letter-spacing:1.5px; text-transform:uppercase; }
+    .energy-disp {
+      font-size: 13px;
+      color: var(--teal);
+    }
 
-  .capy-wrap {
-    position:relative; width:160px; height:160px;
-    display:flex; align-items:center; justify-content:center;
-  }
-  .capy {
-    cursor:pointer; display:flex; align-items:center; justify-content:center;
-    filter:drop-shadow(0 6px 24px rgba(0,0,0,0.45));
-    width:150px; height:150px;
-  }
-  .capy img {
-    width:150px; height:150px;
-    transition: filter 0.5s, opacity 0.5s;
-    pointer-events: none;
-  }
-  .capy img.hungry  { filter: grayscale(60%) brightness(0.75) saturate(0.5); }
-  @keyframes hungerPulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
-  .capy img.starving { filter: grayscale(90%) brightness(0.6); animation: hungerPulse 1.2s infinite; }
-  .capy-img-inner { transition: transform 0.07s; display:flex; }
+    .screen {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+      overflow-y: auto;
+    }
 
-  .hunger-alert {
-    background: rgba(255,107,107,0.15);
-    border: 1px solid rgba(255,107,107,0.4);
-    border-radius:10px; padding:7px 14px;
-    font-size:12px; color:var(--red);
-    width:100%; max-width:300px; text-align:center;
-    display:none;
-  }
+    .screen.active {
+      display: flex;
+    }
 
-  .bars-wrap { width:100%; max-width:300px; padding:0 4px; display:flex; flex-direction:column; gap:8px; }
-  .bar-row { display:flex; justify-content:space-between; font-size:11px; color:var(--hint); margin-bottom:4px; }
-  .bar-bg { height:7px; background:rgba(255,255,255,0.09); border-radius:4px; overflow:hidden; }
-  .bar-fill { height:100%; border-radius:4px; transition:width 0.35s; }
-  .bar-fill-energy { background:var(--teal); }
-  .bar-fill-hunger { background:#f0a500; transition:width 0.35s, background 0.5s; }
-  .bar-fill-hunger.low  { background:#ff9500; }
-  .bar-fill-hunger.crit { background:var(--red); }
+    .tap-zone {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 16px;
+      position: relative;
+    }
 
-  .stats-row { display:flex; gap:20px; font-size:13px; color:var(--hint); }
-  .stats-row b { color:var(--text); font-weight:600; }
+    .stage-lbl {
+      font-size: 12px;
+      color: var(--hint);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
 
-  .evolve-banner {
-    background:linear-gradient(135deg,#f0a500,#ff6b6b);
-    border-radius:12px; padding:10px 14px;
-    font-size:13px; font-weight:600; color:#fff;
-    width:100%; max-width:300px; text-align:center;
-    animation:pulse 1.8s infinite; display:none;
-  }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.75} }
+    .capy-wrap {
+      position: relative;
+      width: 160px;
+      height: 160px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-  .fl { position:fixed; font-size:19px; font-weight:700; pointer-events:none; z-index:999; animation:fup .85s ease-out forwards; }
-  @keyframes fup { 0%{opacity:1;transform:translateY(0) scale(1)} 100%{opacity:0;transform:translateY(-75px) scale(0.65)} }
+    .capy {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      filter: drop-shadow(0 6px 24px rgba(0, 0, 0, 0.45));
+      width: 150px;
+      height: 150px;
+    }
 
-  .bnav { display:flex; background:var(--bg2); border-top:1px solid rgba(255,255,255,0.07); flex-shrink:0; }
-  .nbtn {
-    flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
-    gap:3px; padding:9px 4px; background:none; border:none;
-    color:var(--hint); font-size:10px; cursor:pointer; transition:color .15s;
-  }
-  .nbtn .ni { font-size:20px; }
-  .nbtn.active { color:var(--btn); }
+    .capy img {
+      width: 150px;
+      height: 150px;
+      transition: filter 0.5s, opacity 0.5s;
+      pointer-events: none;
+    }
 
-  .screen-title { padding:14px 16px; font-size:17px; font-weight:700; border-bottom:1px solid rgba(255,255,255,0.07); flex-shrink:0; }
-  .shop-list { padding:10px; display:flex; flex-direction:column; gap:9px; }
-  .upg-card {
-    background:var(--bg2); border-radius:13px; padding:13px;
-    display:flex; align-items:center; gap:12px;
-    border:1px solid rgba(255,255,255,0.05);
-  }
-  .upg-ico { font-size:34px; line-height:1; flex-shrink:0; }
-  .upg-info { flex:1; min-width:0; }
-  .upg-name { font-size:14px; font-weight:600; }
-  .upg-desc { font-size:12px; color:var(--hint); margin-top:2px; }
-  .upg-lvl  { font-size:11px; color:var(--btn); margin-top:3px; }
-  .upg-buy  { display:flex; flex-direction:column; align-items:center; gap:3px; flex-shrink:0; }
-  .buy-btn {
-    background:var(--btn); color:var(--btnT);
-    border:none; border-radius:9px; padding:7px 12px;
-    font-size:13px; font-weight:600; cursor:pointer; min-width:76px; text-align:center;
-  }
-  .buy-btn:disabled { opacity:.3; cursor:default; }
-  .buy-btn.mx { background:rgba(255,255,255,0.1); color:var(--hint); }
-  .buy-cost { font-size:11px; color:var(--gold); }
+    .capy img.hungry {
+      filter: grayscale(60%) brightness(0.75) saturate(0.5);
+    }
 
-  .friends-wrap { padding:14px; display:flex; flex-direction:column; gap:10px; }
-  .f-box { background:var(--bg2); border-radius:13px; padding:15px; text-align:center; border:1px solid rgba(255,255,255,0.05); }
-  .f-box h3 { font-size:15px; font-weight:600; margin-bottom:5px; }
-  .f-box p  { font-size:12px; color:var(--hint); }
-  .ref-count { font-size:34px; font-weight:700; color:var(--gold); margin:6px 0 2px; }
-  .ref-lnk { font-size:11px; color:var(--text); word-break:break-all; margin-top:8px; }
-  .f-btn { width:100%; border:none; border-radius:11px; padding:13px; font-size:14px; font-weight:600; cursor:pointer; }
-  .f-btn-main  { background:var(--btn); color:var(--btnT); }
-  .f-btn-ghost { background:rgba(255,255,255,0.08); color:var(--text); margin-top:6px; }
+    @keyframes hungerPulse {
 
-  .lb-wrap { padding:10px; }
-  .lb-item {
-    background:var(--bg2); border-radius:11px; padding:11px 14px;
-    display:flex; align-items:center; gap:11px; margin-bottom:8px;
-    border:1px solid rgba(255,255,255,0.04);
-  }
-  .lb-item.me { border-color:var(--btn); }
-  .lb-rank { font-size:17px; font-weight:700; min-width:28px; }
-  .lb-name { flex:1; font-size:13px; }
-  .lb-score { font-size:13px; color:var(--gold); font-weight:600; }
+      0%,
+      100% {
+        opacity: 1
+      }
 
-  .modal-ov {
-    display:none; position:fixed; inset:0;
-    background:rgba(0,0,0,0.75); z-index:200;
-    align-items:center; justify-content:center; padding:20px;
-  }
-  .modal-ov.show { display:flex; }
-  .modal-box { background:var(--bg2); border-radius:18px; padding:24px; text-align:center; max-width:300px; width:100%; }
-  .modal-box h2 { font-size:18px; margin-bottom:7px; }
-  .modal-box p  { font-size:13px; color:var(--hint); margin-bottom:14px; }
-  .modal-amt { font-size:34px; font-weight:700; color:var(--gold); margin-bottom:18px; }
-  .modal-btn { background:var(--btn); color:var(--btnT); border:none; border-radius:11px; padding:13px 28px; font-size:14px; font-weight:600; cursor:pointer; }
-  .modal-btn-red { background:var(--red); }
+      50% {
+        opacity: 0.5
+      }
+    }
 
-  .stars-grid { padding:10px; display:flex; flex-direction:column; gap:9px; }
-  .star-item {
-    background:var(--bg2); border-radius:13px; padding:13px 14px;
-    display:flex; align-items:center; justify-content:space-between;
-    border:1px solid rgba(255,255,255,0.05);
-  }
-  .star-info h4 { font-size:14px; font-weight:600; margin-bottom:3px; }
-  .star-info p  { font-size:12px; color:var(--hint); }
-  .star-btn { background:#ffd700; color:#000; border:none; border-radius:9px; padding:8px 14px; font-size:13px; font-weight:700; cursor:pointer; }
+    .capy img.starving {
+      filter: grayscale(90%) brightness(0.6);
+      animation: hungerPulse 1.2s infinite;
+    }
 
-  .ad-btn {
-    background:rgba(255,255,255,0.08); color:var(--text);
-    border:1px solid rgba(255,255,255,0.15); border-radius:10px;
-    padding:9px 16px; font-size:13px; cursor:pointer; margin-top:4px;
-  }
-</style>
+    .capy-img-inner {
+      transition: transform 0.07s;
+      display: flex;
+    }
+
+    .hunger-alert {
+      background: rgba(255, 107, 107, 0.15);
+      border: 1px solid rgba(255, 107, 107, 0.4);
+      border-radius: 10px;
+      padding: 7px 14px;
+      font-size: 12px;
+      color: var(--red);
+      width: 100%;
+      max-width: 300px;
+      text-align: center;
+      display: none;
+    }
+
+    .bars-wrap {
+      width: 100%;
+      max-width: 300px;
+      padding: 0 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .bar-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--hint);
+      margin-bottom: 4px;
+    }
+
+    .bar-bg {
+      height: 7px;
+      background: rgba(255, 255, 255, 0.09);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.35s;
+    }
+
+    .bar-fill-energy {
+      background: var(--teal);
+    }
+
+    .bar-fill-hunger {
+      background: #f0a500;
+      transition: width 0.35s, background 0.5s;
+    }
+
+    .bar-fill-hunger.low {
+      background: #ff9500;
+    }
+
+    .bar-fill-hunger.crit {
+      background: var(--red);
+    }
+
+    .stats-row {
+      display: flex;
+      gap: 20px;
+      font-size: 13px;
+      color: var(--hint);
+    }
+
+    .stats-row b {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .evolve-banner {
+      background: linear-gradient(135deg, #f0a500, #ff6b6b);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+      width: 100%;
+      max-width: 300px;
+      text-align: center;
+      animation: pulse 1.8s infinite;
+      display: none;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: .75
+      }
+    }
+
+    .fl {
+      position: fixed;
+      font-size: 19px;
+      font-weight: 700;
+      pointer-events: none;
+      z-index: 999;
+      animation: fup .85s ease-out forwards;
+    }
+
+    @keyframes fup {
+      0% {
+        opacity: 1;
+        transform: translateY(0) scale(1)
+      }
+
+      100% {
+        opacity: 0;
+        transform: translateY(-75px) scale(0.65)
+      }
+    }
+
+    .bnav {
+      display: flex;
+      background: var(--bg2);
+      border-top: 1px solid rgba(255, 255, 255, 0.07);
+      flex-shrink: 0;
+    }
+
+    .nbtn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      padding: 9px 4px;
+      background: none;
+      border: none;
+      color: var(--hint);
+      font-size: 10px;
+      cursor: pointer;
+      transition: color .15s;
+    }
+
+    .nbtn .ni {
+      font-size: 20px;
+    }
+
+    .nbtn.active {
+      color: var(--btn);
+    }
+
+    .screen-title {
+      padding: 14px 16px;
+      font-size: 17px;
+      font-weight: 700;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      flex-shrink: 0;
+    }
+
+    .shop-list {
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .upg-card {
+      background: var(--bg2);
+      border-radius: 13px;
+      padding: 13px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .upg-ico {
+      font-size: 34px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .upg-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .upg-name {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .upg-desc {
+      font-size: 12px;
+      color: var(--hint);
+      margin-top: 2px;
+    }
+
+    .upg-lvl {
+      font-size: 11px;
+      color: var(--btn);
+      margin-top: 3px;
+    }
+
+    .upg-buy {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      flex-shrink: 0;
+    }
+
+    .buy-btn {
+      background: var(--btn);
+      color: var(--btnT);
+      border: none;
+      border-radius: 9px;
+      padding: 7px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      min-width: 76px;
+      text-align: center;
+    }
+
+    .buy-btn:disabled {
+      opacity: .3;
+      cursor: default;
+    }
+
+    .buy-btn.mx {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--hint);
+    }
+
+    .buy-cost {
+      font-size: 11px;
+      color: var(--gold);
+    }
+
+    .friends-wrap {
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .f-box {
+      background: var(--bg2);
+      border-radius: 13px;
+      padding: 15px;
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .f-box h3 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .f-box p {
+      font-size: 12px;
+      color: var(--hint);
+    }
+
+    .ref-count {
+      font-size: 34px;
+      font-weight: 700;
+      color: var(--gold);
+      margin: 6px 0 2px;
+    }
+
+    .ref-lnk {
+      font-size: 11px;
+      color: var(--text);
+      word-break: break-all;
+      margin-top: 8px;
+    }
+
+    .f-btn {
+      width: 100%;
+      border: none;
+      border-radius: 11px;
+      padding: 13px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .f-btn-main {
+      background: var(--btn);
+      color: var(--btnT);
+    }
+
+    .f-btn-ghost {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+      margin-top: 6px;
+    }
+
+    .lb-wrap {
+      padding: 10px;
+    }
+
+    .lb-item {
+      background: var(--bg2);
+      border-radius: 11px;
+      padding: 11px 14px;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      margin-bottom: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .lb-item.me {
+      border-color: var(--btn);
+    }
+
+    .lb-rank {
+      font-size: 17px;
+      font-weight: 700;
+      min-width: 28px;
+    }
+
+    .lb-name {
+      flex: 1;
+      font-size: 13px;
+    }
+
+    .lb-score {
+      font-size: 13px;
+      color: var(--gold);
+      font-weight: 600;
+    }
+
+    .modal-ov {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-ov.show {
+      display: flex;
+    }
+
+    .modal-box {
+      background: var(--bg2);
+      border-radius: 18px;
+      padding: 24px;
+      text-align: center;
+      max-width: 300px;
+      width: 100%;
+    }
+
+    .modal-box h2 {
+      font-size: 18px;
+      margin-bottom: 7px;
+    }
+
+    .modal-box p {
+      font-size: 13px;
+      color: var(--hint);
+      margin-bottom: 14px;
+    }
+
+    .modal-amt {
+      font-size: 34px;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 18px;
+    }
+
+    .modal-btn {
+      background: var(--btn);
+      color: var(--btnT);
+      border: none;
+      border-radius: 11px;
+      padding: 13px 28px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .modal-btn-red {
+      background: var(--red);
+    }
+
+    .stars-grid {
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .star-item {
+      background: var(--bg2);
+      border-radius: 13px;
+      padding: 13px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .star-info h4 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
+    .star-info p {
+      font-size: 12px;
+      color: var(--hint);
+    }
+
+    .star-btn {
+      background: #ffd700;
+      color: #000;
+      border: none;
+      border-radius: 9px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .ad-btn {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      padding: 9px 16px;
+      font-size: 13px;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+  </style>
 </head>
+
 <body>
 
-<!-- HELP MODAL -->
-<div class="modal-ov" id="helpModal">
-  <div class="modal-box" style="max-width:310px">
-    <h2>🦫 Как играть</h2>
-    <div style="text-align:left;font-size:13px;color:var(--hint);line-height:1.9;margin:10px 0 16px">
-      <div>🥕 <b style="color:var(--text)">Тапай на Васю</b> — получай морковки</div>
-      <div>⚡ <b style="color:var(--text)">Аппетит</b> — тратится на тапы, восстанавливается сам</div>
-      <div>🍖 <b style="color:var(--text)">Сытость</b> — падает если не играть. Голодный Вася даёт меньше морковок!</div>
-      <div>🛒 <b style="color:var(--text)">Магазин</b> — покупай улучшения за морковки</div>
-      <div>👨‍🍳 <b style="color:var(--text)">Повар / Вилла</b> — морковки идут сами, даже без тапов</div>
-      <div>👥 <b style="color:var(--text)">Друзья</b> — +500 🥕 за каждого приглашённого</div>
-      <div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.1)">
-        🏆 <b style="color:var(--text)">Цель:</b> вырасти от Васятки до Легенды (1 000 000 🥕)
+  <!-- HELP MODAL -->
+  <div class="modal-ov" id="helpModal">
+    <div class="modal-box" style="max-width:310px">
+      <h2>🦫 Как играть</h2>
+      <div style="text-align:left;font-size:13px;color:var(--hint);line-height:1.9;margin:10px 0 16px">
+        <div>🥕 <b style="color:var(--text)">Тапай на Васю</b> — получай морковки</div>
+        <div>⚡ <b style="color:var(--text)">Аппетит</b> — тратится на тапы, восстанавливается сам</div>
+        <div>🍖 <b style="color:var(--text)">Сытость</b> — падает если не играть. Голодный Вася даёт меньше морковок!
+        </div>
+        <div>🛒 <b style="color:var(--text)">Магазин</b> — покупай улучшения за морковки</div>
+        <div>👨‍🍳 <b style="color:var(--text)">Повар / Вилла</b> — морковки идут сами, даже без тапов</div>
+        <div>👥 <b style="color:var(--text)">Друзья</b> — +500 🥕 за каждого приглашённого</div>
+        <div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.1)">
+          🏆 <b style="color:var(--text)">Цель:</b> вырасти от Васятки до Легенды (1 000 000 🥕)
+        </div>
+      </div>
+      <button class="modal-btn" onclick="document.getElementById('helpModal').classList.remove('show')">Понял!</button>
+    </div>
+  </div>
+
+  <!-- OFFLINE MODAL -->
+  <div class="modal-ov" id="ofModal">
+    <div class="modal-box">
+      <h2>Вася ждал тебя! 🦫</h2>
+      <p>Пока тебя не было, Вася собирал морковки:</p>
+      <div class="modal-amt" id="ofAmt">+0 🥕</div>
+      <button class="modal-btn" onclick="closeOfflineModal()">Забрать!</button>
+    </div>
+  </div>
+
+  <!-- HUNGER MODAL -->
+  <div class="modal-ov" id="hungerModal">
+    <div class="modal-box">
+      <div style="font-size:64px;margin-bottom:8px">😢</div>
+      <h2>Вася голодает!</h2>
+      <p>Сытость упала до критического уровня.<br>Вася даёт вдвое меньше морковок!</p>
+      <div style="margin:14px 0 18px;font-size:13px;color:var(--hint)">
+        Тапай чтобы покормить Васю.<br>Или посмотри рекламу — +50% сытости сразу.
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        <button class="modal-btn modal-btn-red"
+          onclick="document.getElementById('hungerModal').classList.remove('show')">Буду кормить!</button>
+        <button class="modal-btn" onclick="feedByAd()">📺 Реклама (+50%)</button>
       </div>
     </div>
-    <button class="modal-btn" onclick="document.getElementById('helpModal').classList.remove('show')">Понял!</button>
   </div>
-</div>
 
-<!-- OFFLINE MODAL -->
-<div class="modal-ov" id="ofModal">
-  <div class="modal-box">
-    <h2>Вася ждал тебя! 🦫</h2>
-    <p>Пока тебя не было, Вася собирал морковки:</p>
-    <div class="modal-amt" id="ofAmt">+0 🥕</div>
-    <button class="modal-btn" onclick="closeOfflineModal()">Забрать!</button>
-  </div>
-</div>
-
-<!-- HUNGER MODAL -->
-<div class="modal-ov" id="hungerModal">
-  <div class="modal-box">
-    <div style="font-size:64px;margin-bottom:8px">😢</div>
-    <h2>Вася голодает!</h2>
-    <p>Сытость упала до критического уровня.<br>Вася даёт вдвое меньше морковок!</p>
-    <div style="margin:14px 0 18px;font-size:13px;color:var(--hint)">
-      Тапай чтобы покормить Васю.<br>Или посмотри рекламу — +50% сытости сразу.
-    </div>
-    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
-      <button class="modal-btn modal-btn-red" onclick="document.getElementById('hungerModal').classList.remove('show')">Буду кормить!</button>
-      <button class="modal-btn" onclick="feedByAd()">📺 Реклама (+50%)</button>
-    </div>
-  </div>
-</div>
-
-<!-- HEADER -->
-<div class="header">
-  <div class="coins-disp">🥕 <span id="cDisp">0</span></div>
-  <div style="display:flex;align-items:center;gap:10px">
-    <div class="energy-disp">⚡ <span id="eDisp">500/500</span></div>
-    <button onclick="document.getElementById('helpModal').classList.add('show')" style="
+  <!-- HEADER -->
+  <div class="header">
+    <div class="coins-disp">🥕 <span id="cDisp">0</span></div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="energy-disp">⚡ <span id="eDisp">500/500</span></div>
+      <button onclick="document.getElementById('helpModal').classList.add('show')" style="
       background:rgba(255,255,255,0.1);border:none;border-radius:50%;
       width:28px;height:28px;font-size:15px;cursor:pointer;color:var(--text);
       display:flex;align-items:center;justify-content:center;flex-shrink:0;">?</button>
+    </div>
   </div>
-</div>
 
-<!-- SCREEN: TAP -->
-<div class="screen active" id="sMain">
-  <div class="tap-zone">
-    <div class="stage-lbl" id="stageLbl">Стадия: Васятка</div>
+  <!-- SCREEN: TAP -->
+  <div class="screen active" id="sMain">
+    <div class="tap-zone">
+      <div class="stage-lbl" id="stageLbl">Стадия: Васятка</div>
 
-    <div class="capy-wrap">
-      <div class="capy" id="capy" onclick="onTap(event)">
-        <div class="capy-img-inner">
-          <img id="capyImg"
-            src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f9ab.svg"
-            alt="Вася" width="150" height="150" draggable="false">
+      <div class="capy-wrap">
+        <div class="capy" id="capy" onclick="onTap(event)">
+          <div class="capy-img-inner">
+            <img id="capyImg" src="https://imgur.com/eH7d3NF" alt="Вася" width="150" height="150" draggable="false">
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="hunger-alert" id="hungerAlert">😢 Вася голодает! Тапай чтобы покормить!</div>
-    <div class="tap-hint" id="tapHint">Нажимай на Васю, чтобы кормить!</div>
+      <div class="hunger-alert" id="hungerAlert">😢 Вася голодает! Тапай чтобы покормить!</div>
+      <div class="tap-hint" id="tapHint">Нажимай на Васю, чтобы кормить!</div>
 
-    <div class="bars-wrap">
-      <div>
-        <div class="bar-row"><span>⚡ Аппетит</span><span id="eTxt">500/500</span></div>
-        <div class="bar-bg"><div class="bar-fill bar-fill-energy" id="eFill" style="width:100%"></div></div>
+      <div class="bars-wrap">
+        <div>
+          <div class="bar-row"><span>⚡ Аппетит</span><span id="eTxt">500/500</span></div>
+          <div class="bar-bg">
+            <div class="bar-fill bar-fill-energy" id="eFill" style="width:100%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="bar-row"><span>🍖 Сытость</span><span id="hungerTxt">100/100</span></div>
+          <div class="bar-bg">
+            <div class="bar-fill bar-fill-hunger" id="hFill" style="width:100%"></div>
+          </div>
+        </div>
       </div>
-      <div>
-        <div class="bar-row"><span>🍖 Сытость</span><span id="hungerTxt">100/100</span></div>
-        <div class="bar-bg"><div class="bar-fill bar-fill-hunger" id="hFill" style="width:100%"></div></div>
+
+      <div class="stats-row">
+        <div>+<b id="tpDisp">1</b> за тап</div>
+        <div>+<b id="psDisp">0</b>/сек</div>
+      </div>
+
+      <div class="evolve-banner" id="evBanner"></div>
+      <button class="ad-btn" onclick="watchAd()">📺 Смотреть рекламу (+200 ⚡)</button>
+    </div>
+  </div>
+
+  <!-- SCREEN: SHOP -->
+  <div class="screen" id="sShop">
+    <div class="screen-title">🛒 Улучшения</div>
+    <div class="shop-list" id="shopList"></div>
+    <div class="screen-title" style="margin-top:4px">⭐ За звёзды Telegram</div>
+    <div class="stars-grid">
+      <div class="star-item">
+        <div class="star-info">
+          <h4>⚡ Полный заряд</h4>
+          <p>Восстановить 500 энергии</p>
+        </div>
+        <button class="star-btn" onclick="buyStars('energy')">50 ⭐</button>
+      </div>
+      <div class="star-item">
+        <div class="star-info">
+          <h4>🥕×2 бонус</h4>
+          <p>Двойной тап на 1 час</p>
+        </div>
+        <button class="star-btn" onclick="buyStars('double')">100 ⭐</button>
+      </div>
+      <div class="star-item">
+        <div class="star-info">
+          <h4>🏅 Золотая Вася</h4>
+          <p>Уникальный скин навсегда</p>
+        </div>
+        <button class="star-btn" onclick="buyStars('skin')">500 ⭐</button>
       </div>
     </div>
-
-    <div class="stats-row">
-      <div>+<b id="tpDisp">1</b> за тап</div>
-      <div>+<b id="psDisp">0</b>/сек</div>
-    </div>
-
-    <div class="evolve-banner" id="evBanner"></div>
-    <button class="ad-btn" onclick="watchAd()">📺 Смотреть рекламу (+200 ⚡)</button>
   </div>
-</div>
 
-<!-- SCREEN: SHOP -->
-<div class="screen" id="sShop">
-  <div class="screen-title">🛒 Улучшения</div>
-  <div class="shop-list" id="shopList"></div>
-  <div class="screen-title" style="margin-top:4px">⭐ За звёзды Telegram</div>
-  <div class="stars-grid">
-    <div class="star-item">
-      <div class="star-info"><h4>⚡ Полный заряд</h4><p>Восстановить 500 энергии</p></div>
-      <button class="star-btn" onclick="buyStars('energy')">50 ⭐</button>
-    </div>
-    <div class="star-item">
-      <div class="star-info"><h4>🥕×2 бонус</h4><p>Двойной тап на 1 час</p></div>
-      <button class="star-btn" onclick="buyStars('double')">100 ⭐</button>
-    </div>
-    <div class="star-item">
-      <div class="star-info"><h4>🏅 Золотая Вася</h4><p>Уникальный скин навсегда</p></div>
-      <button class="star-btn" onclick="buyStars('skin')">500 ⭐</button>
+  <!-- SCREEN: LEADERBOARD -->
+  <div class="screen" id="sBoard">
+    <div class="screen-title">🏆 Рейтинг</div>
+    <div class="lb-wrap" id="lbWrap">
+      <p style="padding:14px;color:var(--hint)">Загрузка...</p>
     </div>
   </div>
-</div>
 
-<!-- SCREEN: LEADERBOARD -->
-<div class="screen" id="sBoard">
-  <div class="screen-title">🏆 Рейтинг</div>
-  <div class="lb-wrap" id="lbWrap"><p style="padding:14px;color:var(--hint)">Загрузка...</p></div>
-</div>
-
-<!-- SCREEN: FRIENDS -->
-<div class="screen" id="sFriends">
-  <div class="screen-title">👥 Друзья</div>
-  <div class="friends-wrap">
-    <div class="f-box">
-      <h3>Пригласи друзей 🦫</h3>
-      <p>Ты получишь <b>500 🥕</b> за каждого друга</p>
-      <div class="ref-count" id="refCnt">0</div>
-      <div style="font-size:12px;color:var(--hint)">друзей приглашено</div>
+  <!-- SCREEN: FRIENDS -->
+  <div class="screen" id="sFriends">
+    <div class="screen-title">👥 Друзья</div>
+    <div class="friends-wrap">
+      <div class="f-box">
+        <h3>Пригласи друзей 🦫</h3>
+        <p>Ты получишь <b>500 🥕</b> за каждого друга</p>
+        <div class="ref-count" id="refCnt">0</div>
+        <div style="font-size:12px;color:var(--hint)">друзей приглашено</div>
+      </div>
+      <div class="f-box">
+        <h3>Твоя ссылка</h3>
+        <div class="ref-lnk" id="refLnk">Загрузка...</div>
+      </div>
+      <button class="f-btn f-btn-main" onclick="shareGame()">📤 Поделиться</button>
+      <button class="f-btn f-btn-ghost" onclick="copyRef()">📋 Скопировать ссылку</button>
     </div>
-    <div class="f-box">
-      <h3>Твоя ссылка</h3>
-      <div class="ref-lnk" id="refLnk">Загрузка...</div>
-    </div>
-    <button class="f-btn f-btn-main"  onclick="shareGame()">📤 Поделиться</button>
-    <button class="f-btn f-btn-ghost" onclick="copyRef()">📋 Скопировать ссылку</button>
   </div>
-</div>
 
-<!-- BOTTOM NAV -->
-<div class="bnav">
-  <button class="nbtn active" id="nMain"    onclick="goTo('Main')"><span class="ni">🦫</span>Вася</button>
-  <button class="nbtn"        id="nShop"    onclick="goTo('Shop')"><span class="ni">🛒</span>Магазин</button>
-  <button class="nbtn"        id="nBoard"   onclick="goTo('Board');loadLb()"><span class="ni">🏆</span>Рейтинг</button>
-  <button class="nbtn"        id="nFriends" onclick="goTo('Friends')"><span class="ni">👥</span>Друзья</button>
-</div>
+  <!-- BOTTOM NAV -->
+  <div class="bnav">
+    <button class="nbtn active" id="nMain" onclick="goTo('Main')"><span class="ni">🦫</span>Вася</button>
+    <button class="nbtn" id="nShop" onclick="goTo('Shop')"><span class="ni">🛒</span>Магазин</button>
+    <button class="nbtn" id="nBoard" onclick="goTo('Board');loadLb()"><span class="ni">🏆</span>Рейтинг</button>
+    <button class="nbtn" id="nFriends" onclick="goTo('Friends')"><span class="ni">👥</span>Друзья</button>
+  </div>
 
-<script>
-const CFG = {
-  BACKEND: 'https://ТВОЙ_АДРЕС.up.railway.app',
-  BOT:     'kapibarabigclub_bot',
-  APP:     'kapibarabigclub',
-  MAX_OFFLINE_H: 8,
-  SAVE_EVERY_S:  15,
-  HUNGER_DRAIN_PER_HOUR:  5,
-  HUNGER_RESTORE_PER_TAP: 0.3,
-};
-
-const STAGES = [
-  { name:'Васятка', need:0    },
-  { name:'Пухляш',  need:1e3  },
-  { name:'Толстяк', need:1e4  },
-  { name:'Босс',    need:1e5  },
-  { name:'Легенда', need:1e6  },
-];
-
-const UPGS = [
-  { id:'bowl',   name:'Миска Васи',      ico:'🥣', desc:'+1 сила тапа',       eff:'tap', val:1,   costs:[100,500,2000,10000,50000] },
-  { id:'collar', name:'Золотой ошейник', ico:'📿', desc:'+2 сила тапа',       eff:'tap', val:2,   costs:[300,1500,7500,37500,187500] },
-  { id:'pool',   name:'Бассейн',         ico:'🏊', desc:'+100 макс. энергии', eff:'ene', val:100, costs:[200,1000,5000,25000,100000] },
-  { id:'chef',   name:'Повар',           ico:'👨‍🍳',desc:'+1 морк./сек',      eff:'ps',  val:1,   costs:[500,2500,12500,62500,312500] },
-  { id:'villa',  name:'Вилла',           ico:'🏠', desc:'+5 морк./сек',       eff:'ps',  val:5,   costs:[2000,10000,50000,250000,1250000] },
-];
-
-let S = {
-  coins:0, total:0, energy:500, maxE:500,
-  tap:1, ps:0, hunger:100,
-  upgs:{ bowl:0, collar:0, pool:0, chef:0, villa:0 },
-  stage:0, refs:0,
-  savedAt: Date.now(),
-};
-
-let tg = window.Telegram?.WebApp;
-let userId = null, refUrl = '';
-let lastTick = Date.now(), saveAcc = 0, psAcc = 0;
-let bonusTap = 1, bonusEnd = 0;
-let hungerModalShown = false;
-
-(async () => {
-  if (tg) { tg.ready(); tg.expand(); userId = tg.initDataUnsafe?.user?.id; }
-  await loadState();
-  const sp = tg?.initDataUnsafe?.start_param || '';
-  if (sp.startsWith('ref_')) registerRef(sp.slice(4));
-  refUrl = `https://t.me/${CFG.BOT}/${CFG.APP}?startapp=ref_${userId||0}`;
-  document.getElementById('refLnk').textContent = refUrl;
-  document.getElementById('refCnt').textContent = S.refs;
-  renderShop();
-  loop();
-})();
-
-async function loadState() {
-  return new Promise(res => {
-    const local = () => {
-      try { const d=localStorage.getItem('kap'); if(d) apply(JSON.parse(d)); } catch(e){}
-      res();
+  <script>
+    const CFG = {
+      BACKEND: 'https://ТВОЙ_АДРЕС.up.railway.app',
+      BOT: 'kapibarabigclub_bot',
+      APP: 'kapibarabigclub',
+      MAX_OFFLINE_H: 8,
+      SAVE_EVERY_S: 15,
+      HUNGER_DRAIN_PER_HOUR: 5,
+      HUNGER_RESTORE_PER_TAP: 0.3,
     };
-    if (tg?.CloudStorage) {
-      tg.CloudStorage.getItem('ks', (e,v) => {
-        if (!e && v) { try { apply(JSON.parse(v)); } catch(err){} }
-        else local(); res();
+
+    const STAGES = [
+      { name: 'Васятка', need: 0 },
+      { name: 'Пухляш', need: 1e3 },
+      { name: 'Толстяк', need: 1e4 },
+      { name: 'Босс', need: 1e5 },
+      { name: 'Легенда', need: 1e6 },
+    ];
+
+    const UPGS = [
+      { id: 'bowl', name: 'Миска Васи', ico: '🥣', desc: '+1 сила тапа', eff: 'tap', val: 1, costs: [100, 500, 2000, 10000, 50000] },
+      { id: 'collar', name: 'Золотой ошейник', ico: '📿', desc: '+2 сила тапа', eff: 'tap', val: 2, costs: [300, 1500, 7500, 37500, 187500] },
+      { id: 'pool', name: 'Бассейн', ico: '🏊', desc: '+100 макс. энергии', eff: 'ene', val: 100, costs: [200, 1000, 5000, 25000, 100000] },
+      { id: 'chef', name: 'Повар', ico: '👨‍🍳', desc: '+1 морк./сек', eff: 'ps', val: 1, costs: [500, 2500, 12500, 62500, 312500] },
+      { id: 'villa', name: 'Вилла', ico: '🏠', desc: '+5 морк./сек', eff: 'ps', val: 5, costs: [2000, 10000, 50000, 250000, 1250000] },
+    ];
+
+    let S = {
+      coins: 0, total: 0, energy: 500, maxE: 500,
+      tap: 1, ps: 0, hunger: 100,
+      upgs: { bowl: 0, collar: 0, pool: 0, chef: 0, villa: 0 },
+      stage: 0, refs: 0,
+      savedAt: Date.now(),
+    };
+
+    let tg = window.Telegram?.WebApp;
+    let userId = null, refUrl = '';
+    let lastTick = Date.now(), saveAcc = 0, psAcc = 0;
+    let bonusTap = 1, bonusEnd = 0;
+    let hungerModalShown = false;
+
+    (async () => {
+      if (tg) { tg.ready(); tg.expand(); userId = tg.initDataUnsafe?.user?.id; }
+      await loadState();
+      const sp = tg?.initDataUnsafe?.start_param || '';
+      if (sp.startsWith('ref_')) registerRef(sp.slice(4));
+      refUrl = `https://t.me/${CFG.BOT}/${CFG.APP}?startapp=ref_${userId || 0}`;
+      document.getElementById('refLnk').textContent = refUrl;
+      document.getElementById('refCnt').textContent = S.refs;
+      renderShop();
+      loop();
+    })();
+
+    async function loadState() {
+      return new Promise(res => {
+        const local = () => {
+          try { const d = localStorage.getItem('kap'); if (d) apply(JSON.parse(d)); } catch (e) { }
+          res();
+        };
+        if (tg?.CloudStorage) {
+          tg.CloudStorage.getItem('ks', (e, v) => {
+            if (!e && v) { try { apply(JSON.parse(v)); } catch (err) { } }
+            else local(); res();
+          });
+        } else local();
       });
-    } else local();
-  });
-}
-
-function apply(d) {
-  const now  = Date.now();
-  const offS = Math.min((now-(d.savedAt||now))/1000, CFG.MAX_OFFLINE_H*3600);
-  Object.assign(S, d);
-  S.savedAt = now;
-  if (S.hunger === undefined) S.hunger = 100;
-  recalc();
-  S.energy = Math.min(S.maxE, S.energy + offS);
-  const hungerLost = (offS / 3600) * CFG.HUNGER_DRAIN_PER_HOUR;
-  S.hunger = Math.max(0, S.hunger - hungerLost);
-  if (offS > 60 && S.ps > 0) {
-    const earn = Math.floor(S.ps * offS * hungerMultiplier());
-    S.coins += earn; S.total += earn;
-    if (earn > 0) showOfflineModal(`+${fmt(earn)} 🥕`);
-  }
-  if (S.hunger < 20 && offS > 300) {
-    setTimeout(() => document.getElementById('hungerModal').classList.add('show'), 800);
-    hungerModalShown = true;
-  }
-}
-
-function save() {
-  S.savedAt = Date.now();
-  const j = JSON.stringify(S);
-  localStorage.setItem('kap', j);
-  if (tg?.CloudStorage) tg.CloudStorage.setItem('ks', j, ()=>{});
-}
-
-function recalc() {
-  let tap=1, ps=0, maxE=500;
-  for (const u of UPGS) {
-    const lv = S.upgs[u.id]||0; if (!lv) continue;
-    if (u.eff==='tap') tap  += u.val * lv;
-    if (u.eff==='ps')  ps   += u.val * lv;
-    if (u.eff==='ene') maxE += u.val * lv;
-  }
-  S.tap=tap; S.ps=ps; S.maxE=maxE;
-  S.energy = Math.min(S.energy, S.maxE);
-}
-
-function hungerMultiplier() {
-  if (S.hunger >= 50) return 1.0;
-  if (S.hunger >= 20) return 0.75;
-  return 0.5;
-}
-
-function loop() {
-  const now = Date.now();
-  const dt  = (now - lastTick) / 1000;
-  lastTick  = now;
-
-  const hm = hungerMultiplier();
-  psAcc += S.ps * dt * hm;
-  if (psAcc >= 1) { const e=Math.floor(psAcc); S.coins+=e; S.total+=e; psAcc-=e; }
-
-  if (S.energy < S.maxE) S.energy = Math.min(S.maxE, S.energy + dt);
-
-  S.hunger = Math.max(0, S.hunger - (CFG.HUNGER_DRAIN_PER_HOUR / 3600) * dt);
-
-  if (S.hunger < 20 && !hungerModalShown) {
-    hungerModalShown = true;
-    document.getElementById('hungerModal').classList.add('show');
-  }
-  if (S.hunger >= 30) hungerModalShown = false;
-
-  saveAcc += dt;
-  if (saveAcc >= CFG.SAVE_EVERY_S) { save(); saveAcc=0; }
-
-  ui();
-  requestAnimationFrame(loop);
-}
-
-function onTap(ev) {
-  if (S.energy < 1) {
-    fl('😴 нет аппетита', ev.clientX, ev.clientY, '#888');
-    tg?.HapticFeedback?.notificationOccurred('error');
-    return;
-  }
-  S.hunger = Math.min(100, S.hunger + CFG.HUNGER_RESTORE_PER_TAP);
-  const mult = (Date.now() < bonusEnd) ? bonusTap : 1;
-  const hm   = hungerMultiplier();
-  const earn = Math.max(1, Math.floor(S.tap * mult * hm));
-  S.coins += earn; S.total += earn;
-  S.energy = Math.max(0, S.energy - 1);
-  fl(`+${earn} 🥕`, ev.clientX, ev.clientY, hm < 1 ? '#ff9500' : '#f0a500');
-  const inner = document.querySelector('.capy-img-inner');
-  inner.style.transform='scale(0.88)';
-  setTimeout(()=>inner.style.transform='', 75);
-  tg?.HapticFeedback?.impactOccurred('light');
-  checkEvo();
-}
-
-function fl(txt, x, y, col) {
-  const el = document.createElement('div');
-  el.className='fl'; el.textContent=txt;
-  el.style.cssText=`left:${x-28}px;top:${y-16}px;color:${col}`;
-  document.body.appendChild(el);
-  setTimeout(()=>el.remove(), 870);
-}
-
-function checkEvo() {
-  for (let i=STAGES.length-1; i>=0; i--) {
-    if (S.total >= STAGES[i].need) {
-      if (S.stage !== i) {
-        S.stage = i;
-        const b = document.getElementById('evBanner');
-        b.textContent = `🎉 Вася вырос! Стадия: ${STAGES[i].name}`;
-        b.style.display='block';
-        tg?.HapticFeedback?.notificationOccurred('success');
-        setTimeout(()=>b.style.display='none', 3200);
-      }
-      break;
     }
-  }
-}
 
-function ui() {
-  const h = Math.floor(S.hunger);
-  document.getElementById('cDisp').textContent  = fmt(Math.floor(S.coins));
-  document.getElementById('eDisp').textContent  = `${Math.floor(S.energy)}/${S.maxE}`;
-  document.getElementById('eTxt').textContent   = `${Math.floor(S.energy)}/${S.maxE}`;
-  document.getElementById('eFill').style.width  = (S.energy/S.maxE*100)+'%';
-  document.getElementById('tpDisp').textContent = S.tap;
-  document.getElementById('psDisp').textContent = S.ps;
-  document.getElementById('stageLbl').textContent = `Стадия: ${STAGES[S.stage].name}`;
+    function apply(d) {
+      const now = Date.now();
+      const offS = Math.min((now - (d.savedAt || now)) / 1000, CFG.MAX_OFFLINE_H * 3600);
+      Object.assign(S, d);
+      S.savedAt = now;
+      if (S.hunger === undefined) S.hunger = 100;
+      recalc();
+      S.energy = Math.min(S.maxE, S.energy + offS);
+      const hungerLost = (offS / 3600) * CFG.HUNGER_DRAIN_PER_HOUR;
+      S.hunger = Math.max(0, S.hunger - hungerLost);
+      if (offS > 60 && S.ps > 0) {
+        const earn = Math.floor(S.ps * offS * hungerMultiplier());
+        S.coins += earn; S.total += earn;
+        if (earn > 0) showOfflineModal(`+${fmt(earn)} 🥕`);
+      }
+      if (S.hunger < 20 && offS > 300) {
+        setTimeout(() => document.getElementById('hungerModal').classList.add('show'), 800);
+        hungerModalShown = true;
+      }
+    }
 
-  document.getElementById('hungerTxt').textContent = `${h}/100`;
-  const hFill = document.getElementById('hFill');
-  hFill.style.width = h + '%';
-  hFill.className = 'bar-fill bar-fill-hunger' + (h<20?' crit':h<50?' low':'');
+    function save() {
+      S.savedAt = Date.now();
+      const j = JSON.stringify(S);
+      localStorage.setItem('kap', j);
+      if (tg?.CloudStorage) tg.CloudStorage.setItem('ks', j, () => { });
+    }
 
-  const img = document.getElementById('capyImg');
-  img.className = h < 20 ? 'starving' : h < 50 ? 'hungry' : '';
+    function recalc() {
+      let tap = 1, ps = 0, maxE = 500;
+      for (const u of UPGS) {
+        const lv = S.upgs[u.id] || 0; if (!lv) continue;
+        if (u.eff === 'tap') tap += u.val * lv;
+        if (u.eff === 'ps') ps += u.val * lv;
+        if (u.eff === 'ene') maxE += u.val * lv;
+      }
+      S.tap = tap; S.ps = ps; S.maxE = maxE;
+      S.energy = Math.min(S.energy, S.maxE);
+    }
 
-  document.getElementById('hungerAlert').style.display = h < 30 ? 'block' : 'none';
+    function hungerMultiplier() {
+      if (S.hunger >= 50) return 1.0;
+      if (S.hunger >= 20) return 0.75;
+      return 0.5;
+    }
 
-  const hint = document.getElementById('tapHint');
-  if      (h < 20) hint.textContent = '😢 Вася очень голоден! Тапай скорее!';
-  else if (h < 50) hint.textContent = '😐 Вася немного голоден...';
-  else             hint.textContent = 'Нажимай на Васю, чтобы кормить!';
-}
+    function loop() {
+      const now = Date.now();
+      const dt = (now - lastTick) / 1000;
+      lastTick = now;
 
-function fmt(n) {
-  if (n>=1e9) return (n/1e9).toFixed(1)+'B';
-  if (n>=1e6) return (n/1e6).toFixed(1)+'M';
-  if (n>=1e3) return (n/1e3).toFixed(1)+'K';
-  return String(n);
-}
+      const hm = hungerMultiplier();
+      psAcc += S.ps * dt * hm;
+      if (psAcc >= 1) { const e = Math.floor(psAcc); S.coins += e; S.total += e; psAcc -= e; }
 
-function renderShop() {
-  const c = document.getElementById('shopList');
-  c.innerHTML = '';
-  for (const u of UPGS) {
-    const lv=S.upgs[u.id]||0, mx=lv>=5;
-    const cost=mx?0:u.costs[lv], ok=!mx&&S.coins>=cost;
-    c.insertAdjacentHTML('beforeend',`
+      if (S.energy < S.maxE) S.energy = Math.min(S.maxE, S.energy + dt);
+
+      S.hunger = Math.max(0, S.hunger - (CFG.HUNGER_DRAIN_PER_HOUR / 3600) * dt);
+
+      if (S.hunger < 20 && !hungerModalShown) {
+        hungerModalShown = true;
+        document.getElementById('hungerModal').classList.add('show');
+      }
+      if (S.hunger >= 30) hungerModalShown = false;
+
+      saveAcc += dt;
+      if (saveAcc >= CFG.SAVE_EVERY_S) { save(); saveAcc = 0; }
+
+      ui();
+      requestAnimationFrame(loop);
+    }
+
+    function onTap(ev) {
+      if (S.energy < 1) {
+        fl('😴 нет аппетита', ev.clientX, ev.clientY, '#888');
+        tg?.HapticFeedback?.notificationOccurred('error');
+        return;
+      }
+      S.hunger = Math.min(100, S.hunger + CFG.HUNGER_RESTORE_PER_TAP);
+      const mult = (Date.now() < bonusEnd) ? bonusTap : 1;
+      const hm = hungerMultiplier();
+      const earn = Math.max(1, Math.floor(S.tap * mult * hm));
+      S.coins += earn; S.total += earn;
+      S.energy = Math.max(0, S.energy - 1);
+      fl(`+${earn} 🥕`, ev.clientX, ev.clientY, hm < 1 ? '#ff9500' : '#f0a500');
+      const inner = document.querySelector('.capy-img-inner');
+      inner.style.transform = 'scale(0.88)';
+      setTimeout(() => inner.style.transform = '', 75);
+      tg?.HapticFeedback?.impactOccurred('light');
+      checkEvo();
+    }
+
+    function fl(txt, x, y, col) {
+      const el = document.createElement('div');
+      el.className = 'fl'; el.textContent = txt;
+      el.style.cssText = `left:${x - 28}px;top:${y - 16}px;color:${col}`;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 870);
+    }
+
+    function checkEvo() {
+      for (let i = STAGES.length - 1; i >= 0; i--) {
+        if (S.total >= STAGES[i].need) {
+          if (S.stage !== i) {
+            S.stage = i;
+            const b = document.getElementById('evBanner');
+            b.textContent = `🎉 Вася вырос! Стадия: ${STAGES[i].name}`;
+            b.style.display = 'block';
+            tg?.HapticFeedback?.notificationOccurred('success');
+            setTimeout(() => b.style.display = 'none', 3200);
+          }
+          break;
+        }
+      }
+    }
+
+    function ui() {
+      const h = Math.floor(S.hunger);
+      document.getElementById('cDisp').textContent = fmt(Math.floor(S.coins));
+      document.getElementById('eDisp').textContent = `${Math.floor(S.energy)}/${S.maxE}`;
+      document.getElementById('eTxt').textContent = `${Math.floor(S.energy)}/${S.maxE}`;
+      document.getElementById('eFill').style.width = (S.energy / S.maxE * 100) + '%';
+      document.getElementById('tpDisp').textContent = S.tap;
+      document.getElementById('psDisp').textContent = S.ps;
+      document.getElementById('stageLbl').textContent = `Стадия: ${STAGES[S.stage].name}`;
+
+      document.getElementById('hungerTxt').textContent = `${h}/100`;
+      const hFill = document.getElementById('hFill');
+      hFill.style.width = h + '%';
+      hFill.className = 'bar-fill bar-fill-hunger' + (h < 20 ? ' crit' : h < 50 ? ' low' : '');
+
+      const img = document.getElementById('capyImg');
+      img.className = h < 20 ? 'starving' : h < 50 ? 'hungry' : '';
+
+      document.getElementById('hungerAlert').style.display = h < 30 ? 'block' : 'none';
+
+      const hint = document.getElementById('tapHint');
+      if (h < 20) hint.textContent = '😢 Вася очень голоден! Тапай скорее!';
+      else if (h < 50) hint.textContent = '😐 Вася немного голоден...';
+      else hint.textContent = 'Нажимай на Васю, чтобы кормить!';
+    }
+
+    function fmt(n) {
+      if (n >= 1e9) return (n / 1e9).toFixed(1) + 'B';
+      if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+      if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+      return String(n);
+    }
+
+    function renderShop() {
+      const c = document.getElementById('shopList');
+      c.innerHTML = '';
+      for (const u of UPGS) {
+        const lv = S.upgs[u.id] || 0, mx = lv >= 5;
+        const cost = mx ? 0 : u.costs[lv], ok = !mx && S.coins >= cost;
+        c.insertAdjacentHTML('beforeend', `
       <div class="upg-card">
         <div class="upg-ico">${u.ico}</div>
         <div class="upg-info">
           <div class="upg-name">${u.name}</div>
           <div class="upg-desc">${u.desc}</div>
-          <div class="upg-lvl">${mx?'✅ Максимум':`Ур. ${lv}/5`}</div>
+          <div class="upg-lvl">${mx ? '✅ Максимум' : `Ур. ${lv}/5`}</div>
         </div>
         <div class="upg-buy">
-          <button class="buy-btn${mx?' mx':''}" id="bb_${u.id}"
-            onclick="buy('${u.id}')" ${(mx||!ok)?'disabled':''}>
-            ${mx?'Max':'Купить'}
+          <button class="buy-btn${mx ? ' mx' : ''}" id="bb_${u.id}"
+            onclick="buy('${u.id}')" ${(mx || !ok) ? 'disabled' : ''}>
+            ${mx ? 'Max' : 'Купить'}
           </button>
-          ${!mx?`<div class="buy-cost">🥕 ${fmt(cost)}</div>`:''}
+          ${!mx ? `<div class="buy-cost">🥕 ${fmt(cost)}</div>` : ''}
         </div>
       </div>`);
-  }
-}
-
-function refreshBtns() {
-  for (const u of UPGS) {
-    const lv=S.upgs[u.id]||0, mx=lv>=5;
-    const btn=document.getElementById('bb_'+u.id);
-    if (btn) btn.disabled = mx || S.coins < u.costs[lv];
-  }
-}
-
-function buy(id) {
-  const u=UPGS.find(x=>x.id===id), lv=S.upgs[id]||0;
-  if (lv>=5||S.coins<u.costs[lv]) return;
-  S.coins-=u.costs[lv]; S.upgs[id]=lv+1;
-  recalc(); renderShop(); save();
-  tg?.HapticFeedback?.impactOccurred('medium');
-}
-
-function buyStars(product) {
-  const links = {
-    energy:'https://t.me/invoice/energy_refill_link',
-    double:'https://t.me/invoice/double_tap_link',
-    skin:  'https://t.me/invoice/gold_skin_link',
-  };
-  if (tg?.openInvoice) {
-    tg.openInvoice(links[product], (status) => {
-      if (status==='paid') {
-        if (product==='energy') { S.energy=S.maxE; tg?.showAlert?.('⚡ Энергия восстановлена!'); }
-        if (product==='double') { bonusTap=2; bonusEnd=Date.now()+3600000; tg?.showAlert?.('🥕×2 активирован на 1 час!'); }
-        if (product==='skin')   tg?.showAlert?.('🏅 Золотая Вася активирована!');
       }
-    });
-  } else window.open(links[product]);
-}
+    }
 
-let AdController;
-async function initAds() {
-  try { AdController = await window.Adsgram?.init({ blockId:'ТВОЙ_BLOCK_ID', debug:false }); } catch(e) {}
-}
-async function watchAd() {
-  if (!AdController) { tg?.showAlert?.('Реклама пока недоступна'); return; }
-  try {
-    const r = await AdController.show();
-    if (r.done) { S.energy=Math.min(S.maxE,S.energy+200); tg?.showAlert?.('⚡ +200 энергии!'); }
-  } catch(e) { tg?.showAlert?.('Реклама не загрузилась.'); }
-}
-async function feedByAd() {
-  document.getElementById('hungerModal').classList.remove('show');
-  if (!AdController) { S.hunger=Math.min(100,S.hunger+50); tg?.showAlert?.('🍖 +50% сытости!'); return; }
-  try {
-    const r = await AdController.show();
-    if (r.done) { S.hunger=Math.min(100,S.hunger+50); tg?.showAlert?.('🍖 Вася наелся! +50% сытости!'); }
-  } catch(e) {}
-}
-initAds();
+    function refreshBtns() {
+      for (const u of UPGS) {
+        const lv = S.upgs[u.id] || 0, mx = lv >= 5;
+        const btn = document.getElementById('bb_' + u.id);
+        if (btn) btn.disabled = mx || S.coins < u.costs[lv];
+      }
+    }
 
-async function loadLb() {
-  const w=document.getElementById('lbWrap');
-  w.innerHTML='<p style="padding:14px;color:var(--hint)">Загрузка...</p>';
-  try {
-    const r=await fetch(`${CFG.BACKEND}/leaderboard`);
-    const d=await r.json();
-    if (!d.leaders?.length) { w.innerHTML='<p style="padding:14px;color:var(--hint)">Стань первым!</p>'; return; }
-    const med=['🥇','🥈','🥉'];
-    w.innerHTML=d.leaders.map((x,i)=>`
-      <div class="lb-item${x.user_id===userId?' me':''}">
-        <div class="lb-rank">${med[i]||(i+1)}</div>
+    function buy(id) {
+      const u = UPGS.find(x => x.id === id), lv = S.upgs[id] || 0;
+      if (lv >= 5 || S.coins < u.costs[lv]) return;
+      S.coins -= u.costs[lv]; S.upgs[id] = lv + 1;
+      recalc(); renderShop(); save();
+      tg?.HapticFeedback?.impactOccurred('medium');
+    }
+
+    function buyStars(product) {
+      const links = {
+        energy: 'https://t.me/invoice/energy_refill_link',
+        double: 'https://t.me/invoice/double_tap_link',
+        skin: 'https://t.me/invoice/gold_skin_link',
+      };
+      if (tg?.openInvoice) {
+        tg.openInvoice(links[product], (status) => {
+          if (status === 'paid') {
+            if (product === 'energy') { S.energy = S.maxE; tg?.showAlert?.('⚡ Энергия восстановлена!'); }
+            if (product === 'double') { bonusTap = 2; bonusEnd = Date.now() + 3600000; tg?.showAlert?.('🥕×2 активирован на 1 час!'); }
+            if (product === 'skin') tg?.showAlert?.('🏅 Золотая Вася активирована!');
+          }
+        });
+      } else window.open(links[product]);
+    }
+
+    let AdController;
+    async function initAds() {
+      try { AdController = await window.Adsgram?.init({ blockId: 'ТВОЙ_BLOCK_ID', debug: false }); } catch (e) { }
+    }
+    async function watchAd() {
+      if (!AdController) { tg?.showAlert?.('Реклама пока недоступна'); return; }
+      try {
+        const r = await AdController.show();
+        if (r.done) { S.energy = Math.min(S.maxE, S.energy + 200); tg?.showAlert?.('⚡ +200 энергии!'); }
+      } catch (e) { tg?.showAlert?.('Реклама не загрузилась.'); }
+    }
+    async function feedByAd() {
+      document.getElementById('hungerModal').classList.remove('show');
+      if (!AdController) { S.hunger = Math.min(100, S.hunger + 50); tg?.showAlert?.('🍖 +50% сытости!'); return; }
+      try {
+        const r = await AdController.show();
+        if (r.done) { S.hunger = Math.min(100, S.hunger + 50); tg?.showAlert?.('🍖 Вася наелся! +50% сытости!'); }
+      } catch (e) { }
+    }
+    initAds();
+
+    async function loadLb() {
+      const w = document.getElementById('lbWrap');
+      w.innerHTML = '<p style="padding:14px;color:var(--hint)">Загрузка...</p>';
+      try {
+        const r = await fetch(`${CFG.BACKEND}/leaderboard`);
+        const d = await r.json();
+        if (!d.leaders?.length) { w.innerHTML = '<p style="padding:14px;color:var(--hint)">Стань первым!</p>'; return; }
+        const med = ['🥇', '🥈', '🥉'];
+        w.innerHTML = d.leaders.map((x, i) => `
+      <div class="lb-item${x.user_id === userId ? ' me' : ''}">
+        <div class="lb-rank">${med[i] || (i + 1)}</div>
         <div class="lb-name">${esc(x.name)}</div>
         <div class="lb-score">🥕 ${fmt(x.score)}</div>
       </div>`).join('');
-    submitScore();
-  } catch { w.innerHTML='<p style="padding:14px;color:var(--hint)">Ошибка соединения</p>'; }
-}
+        submitScore();
+      } catch { w.innerHTML = '<p style="padding:14px;color:var(--hint)">Ошибка соединения</p>'; }
+    }
 
-async function submitScore() {
-  if (!userId) return;
-  try {
-    await fetch(`${CFG.BACKEND}/score`,{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({user_id:userId,name:tg?.initDataUnsafe?.user?.first_name||'Игрок',score:Math.floor(S.total),init_data:tg?.initData||''})
-    });
-  } catch {}
-}
+    async function submitScore() {
+      if (!userId) return;
+      try {
+        await fetch(`${CFG.BACKEND}/score`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: userId, name: tg?.initDataUnsafe?.user?.first_name || 'Игрок', score: Math.floor(S.total), init_data: tg?.initData || '' })
+        });
+      } catch { }
+    }
 
-async function registerRef(byId) {
-  if (!userId||byId===String(userId)) return;
-  try {
-    await fetch(`${CFG.BACKEND}/referral`,{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({user_id:userId,referred_by:byId,init_data:tg?.initData||''})
-    });
-  } catch {}
-}
+    async function registerRef(byId) {
+      if (!userId || byId === String(userId)) return;
+      try {
+        await fetch(`${CFG.BACKEND}/referral`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: userId, referred_by: byId, init_data: tg?.initData || '' })
+        });
+      } catch { }
+    }
 
-function shareGame() {
-  const txt=`🦫 Играю в Капибара Клуб! Вася уже «${STAGES[S.stage].name}». Покорми и ты!`;
-  tg?.openTelegramLink?.(`https://t.me/share/url?url=${encodeURIComponent(refUrl)}&text=${encodeURIComponent(txt)}`);
-}
-function copyRef() {
-  navigator.clipboard?.writeText(refUrl).catch(()=>{});
-  tg?.showAlert?.('Ссылка скопирована! 📋');
-}
+    function shareGame() {
+      const txt = `🦫 Играю в Капибара Клуб! Вася уже «${STAGES[S.stage].name}». Покорми и ты!`;
+      tg?.openTelegramLink?.(`https://t.me/share/url?url=${encodeURIComponent(refUrl)}&text=${encodeURIComponent(txt)}`);
+    }
+    function copyRef() {
+      navigator.clipboard?.writeText(refUrl).catch(() => { });
+      tg?.showAlert?.('Ссылка скопирована! 📋');
+    }
 
-function goTo(name) {
-  ['Main','Shop','Board','Friends'].forEach(n=>{
-    document.getElementById('s'+n).classList.toggle('active',n===name);
-    document.getElementById('n'+n).classList.toggle('active',n===name);
-  });
-  if (name==='Shop') refreshBtns();
-}
+    function goTo(name) {
+      ['Main', 'Shop', 'Board', 'Friends'].forEach(n => {
+        document.getElementById('s' + n).classList.toggle('active', n === name);
+        document.getElementById('n' + n).classList.toggle('active', n === name);
+      });
+      if (name === 'Shop') refreshBtns();
+    }
 
-function showOfflineModal(txt) {
-  document.getElementById('ofAmt').textContent=txt;
-  document.getElementById('ofModal').classList.add('show');
-}
-function closeOfflineModal() { document.getElementById('ofModal').classList.remove('show'); }
-function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-</script>
+    function showOfflineModal(txt) {
+      document.getElementById('ofAmt').textContent = txt;
+      document.getElementById('ofModal').classList.add('show');
+    }
+    function closeOfflineModal() { document.getElementById('ofModal').classList.remove('show'); }
+    function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  </script>
 </body>
+
 </html>
