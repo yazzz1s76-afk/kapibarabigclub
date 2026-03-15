@@ -422,26 +422,26 @@ const CFG = {
   BACKEND: 'https://kapibarabigclub.onrender.com',
   BOT:     'kapibarabigclub_bot',
   APP:     'kapibarabigclub',
-  MAX_OFFLINE_H: 8,
+  MAX_OFFLINE_H: 4,
   SAVE_EVERY_S:  15,
   HUNGER_DRAIN_PER_HOUR:  15,
   HUNGER_RESTORE_PER_TAP: 0.5,
 };
 
 const STAGES = [
-  { name:'Васятка', need:0,   skin:0, color:'обычная', ico:'🦫' },
-  { name:'Пухляш',  need:1e3, skin:1, color:'тёплая',  ico:'🧡' },
-  { name:'Толстяк', need:1e4, skin:2, color:'золотая', ico:'🌟' },
-  { name:'Босс',    need:1e5, skin:3, color:'синяя',   ico:'💙' },
-  { name:'Легенда', need:1e6, skin:4, color:'радуга',  ico:'🌈' },
+  { name:'Васятка', need:0,      skin:0, ico:'🦫' },
+  { name:'Пухляш',  need:5e3,   skin:1, ico:'🧡' },
+  { name:'Толстяк', need:50e3,  skin:2, ico:'🌟' },
+  { name:'Босс',    need:500e3, skin:3, ico:'💙' },
+  { name:'Легенда', need:5e6,   skin:4, ico:'🌈' },
 ];
 
 const UPGS = [
-  { id:'bowl',   name:'Миска Васи',      ico:'🥣', desc:'+1 сила тапа',       eff:'tap', val:1,   costs:[100,500,2000,10000,50000] },
-  { id:'collar', name:'Золотой ошейник', ico:'📿', desc:'+2 сила тапа',       eff:'tap', val:2,   costs:[300,1500,7500,37500,187500] },
-  { id:'pool',   name:'Бассейн',         ico:'🏊', desc:'+100 макс. энергии', eff:'ene', val:100, costs:[200,1000,5000,25000,100000] },
-  { id:'chef',   name:'Повар',           ico:'👨‍🍳',desc:'+1 морк./сек',      eff:'ps',  val:1,   costs:[500,2500,12500,62500,312500] },
-  { id:'villa',  name:'Вилла',           ico:'🏠', desc:'+5 морк./сек',       eff:'ps',  val:5,   costs:[2000,10000,50000,250000,1250000] },
+  { id:'bowl',   name:'Миска Васи',      ico:'🥣', desc:'+1 сила тапа',       eff:'tap', val:1,   costs:[500,2500,10000,50000,200000] },
+  { id:'collar', name:'Золотой ошейник', ico:'📿', desc:'+2 сила тапа',       eff:'tap', val:2,   costs:[2000,10000,50000,200000,800000] },
+  { id:'pool',   name:'Бассейн',         ico:'🏊', desc:'+100 макс. энергии', eff:'ene', val:100, costs:[1000,5000,25000,100000,400000] },
+  { id:'chef',   name:'Повар',           ico:'👨‍🍳',desc:'+0.5 морк./сек',    eff:'ps',  val:0.5, costs:[5000,25000,100000,400000,1500000] },
+  { id:'villa',  name:'Вилла',           ico:'🏠', desc:'+1 морк./сек',       eff:'ps',  val:1,   costs:[20000,100000,400000,1500000,5000000] },
 ];
 
 let S = {
