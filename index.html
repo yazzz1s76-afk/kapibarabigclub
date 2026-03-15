@@ -36,17 +36,27 @@
   .stage-lbl{font-size:11px;font-weight:700;color:var(--btn);letter-spacing:2px;text-transform:uppercase;background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.2);padding:4px 12px;border-radius:20px}
   .capy-wrap{position:relative;width:170px;height:170px;display:flex;align-items:center;justify-content:center}
   .capy-ring{position:absolute;inset:-8px;border-radius:50%;border:2px solid transparent;background:linear-gradient(135deg,rgba(167,139,250,.4),rgba(78,205,196,.4)) border-box;-webkit-mask:linear-gradient(#fff 0 0) padding-box,linear-gradient(#fff 0 0);-webkit-mask-composite:destination-out;mask-composite:exclude;animation:ringRotate 4s linear infinite}
+  .capy-ring.gold-ring{background:linear-gradient(135deg,rgba(255,215,0,.8),rgba(255,165,0,.6)) border-box}
   @keyframes ringRotate{to{transform:rotate(360deg)}}
   .capy-glow{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle,rgba(167,139,250,.2) 0%,transparent 70%);animation:glowPulse 2.5s ease-in-out infinite}
+  .capy-glow.gold-glow{background:radial-gradient(circle,rgba(255,215,0,.35) 0%,transparent 70%)}
   @keyframes glowPulse{0%,100%{transform:scale(1);opacity:.7}50%{transform:scale(1.2);opacity:1}}
   .capy-card{width:148px;height:148px;cursor:pointer;position:relative;z-index:1;animation:floatIdle 3s ease-in-out infinite}
   @keyframes floatIdle{0%,100%{transform:translateY(0) rotate(0deg)}33%{transform:translateY(-7px) rotate(.6deg)}66%{transform:translateY(-3px) rotate(-.5deg)}}
   .capy-card img{width:100%;height:100%;object-fit:contain;transition:filter .5s,opacity .5s;pointer-events:none;display:block}
-  .skin-0{filter:none}.skin-1{filter:sepia(.3) saturate(1.4) hue-rotate(10deg)}.skin-2{filter:sepia(.5) saturate(1.8) hue-rotate(25deg) brightness(1.1)}.skin-3{filter:hue-rotate(220deg) saturate(1.6) brightness(1.1)}.skin-4{animation:rainbow 3s linear infinite!important}
+  /* Обычные скины по стадиям */
+  .skin-0{filter:none}
+  .skin-1{filter:sepia(.3) saturate(1.4) hue-rotate(10deg)}
+  .skin-2{filter:sepia(.5) saturate(1.8) hue-rotate(25deg) brightness(1.1)}
+  .skin-3{filter:hue-rotate(220deg) saturate(1.6) brightness(1.1)}
+  .skin-4{animation:rainbow 3s linear infinite!important}
   @keyframes rainbow{0%{filter:hue-rotate(0deg) saturate(2) brightness(1.2)}25%{filter:hue-rotate(90deg) saturate(2) brightness(1.2)}50%{filter:hue-rotate(180deg) saturate(2) brightness(1.2)}75%{filter:hue-rotate(270deg) saturate(2) brightness(1.2)}100%{filter:hue-rotate(360deg) saturate(2) brightness(1.2)}}
-  .capy-card img.hungry{filter:grayscale(60%) brightness(.75) saturate(.5)!important}
+  /* Золотой скин — Stars */
+  .skin-gold{filter:sepia(1) saturate(4) hue-rotate(5deg) brightness(1.3)!important;animation:goldShine 2s ease-in-out infinite!important}
+  @keyframes goldShine{0%,100%{filter:sepia(1) saturate(4) hue-rotate(5deg) brightness(1.3)}50%{filter:sepia(1) saturate(5) hue-rotate(10deg) brightness(1.5)}}
+  .capy-card img.hungry{filter:grayscale(60%) brightness(.75) saturate(.5)!important;animation:none!important}
   @keyframes hungerPulse{0%,100%{opacity:1}50%{opacity:.5}}
-  .capy-card img.starving{filter:grayscale(90%) brightness(.6)!important;animation:hungerPulse 1.2s infinite}
+  .capy-card img.starving{filter:grayscale(90%) brightness(.6)!important;animation:hungerPulse 1.2s infinite!important}
   @keyframes tapBounce{0%{transform:scale(1) rotate(0deg)}20%{transform:scale(.82) rotate(-2deg)}50%{transform:scale(1.1) rotate(1.5deg)}70%{transform:scale(.97) rotate(-.5deg)}100%{transform:scale(1) rotate(0deg)}}
   .capy-card.tapped{animation:tapBounce .4s ease-out,floatIdle 3s ease-in-out infinite .4s!important}
   .spark{position:fixed;pointer-events:none;z-index:998;width:8px;height:8px;border-radius:50%;animation:sparkFly .6s ease-out forwards}
@@ -83,8 +93,10 @@
   .buy-cost{font-size:11px;color:var(--gold);font-weight:700}
   .stars-grid{padding:10px;display:flex;flex-direction:column;gap:9px}
   .star-item{background:rgba(255,215,0,.05);border:1px solid rgba(255,215,0,.15);border-radius:16px;padding:13px 14px;display:flex;align-items:center;justify-content:space-between}
+  .star-item.owned{border-color:rgba(107,203,119,.4);background:rgba(107,203,119,.05)}
   .star-info h4{font-size:14px;font-weight:700;margin-bottom:3px}.star-info p{font-size:12px;color:var(--tg-hint);font-weight:600}
   .star-btn{background:linear-gradient(135deg,#ffd700,#ffaa00);color:#000;border:none;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 3px 12px rgba(255,215,0,.35)}
+  .star-btn.owned{background:rgba(107,203,119,.3);color:var(--grn);box-shadow:none;cursor:default}
   .quest-list{padding:10px;display:flex;flex-direction:column;gap:9px}
   .quest-card{background:rgba(255,255,255,.04);border:1px solid rgba(167,139,250,.12);border-radius:16px;padding:13px;display:flex;flex-direction:column;gap:8px}
   .quest-card.done{border-color:rgba(107,203,119,.35);background:rgba(107,203,119,.04)}.quest-card.claimed{opacity:.4}
@@ -147,7 +159,7 @@
     <h2>🦫 Как играть</h2>
     <div style="margin:10px 0 16px">
       <div class="help-row">🥕 <b>Тапай на Васю</b> — получай морковки</div>
-      <div class="help-row">⚡ <b>Аппетит</b> — тратится на тапы, восстанавливается сам</div>
+      <div class="help-row">⚡ <b>Аппетит</b> — тратится на тапы, восстанавливается медленно</div>
       <div class="help-row">🍖 <b>Сытость</b> — падает если не играть</div>
       <div class="help-row">🛒 <b>Магазин</b> — покупай улучшения за морковки</div>
       <div class="help-row">📋 <b>Задания</b> — выполняй квесты, получай бонусы</div>
@@ -210,7 +222,7 @@
   <div class="tap-zone">
     <div class="stage-lbl" id="stageLbl">🦫 СТАДИЯ: ВАСЯТКА</div>
     <div class="capy-wrap">
-      <div class="capy-ring"></div>
+      <div class="capy-ring" id="capyRing"></div>
       <div class="capy-glow" id="capyGlow"></div>
       <div class="capy-card" id="capyCard" onclick="onTap(event)">
         <img id="capyImg" src="https://i.imgur.com/U4s9OBq.png" alt="Вася" draggable="false">
@@ -242,22 +254,22 @@
   <div class="screen-title">🛒 Улучшения</div>
   <div class="shop-list" id="shopList"></div>
   <div class="screen-title" style="margin-top:4px">⭐ За звёзды Telegram</div>
-  <div class="stars-grid">
-    <div class="star-item">
+  <div class="stars-grid" id="starsGrid">
+    <div class="star-item" id="si-starter">
       <div class="star-info"><h4>🚀 Стартовый пак</h4><p>+5 000 морковок сразу на счёт</p></div>
       <button class="star-btn" onclick="buyStars('starter')">200 ⭐</button>
     </div>
-    <div class="star-item">
-      <div class="star-info"><h4>⚡ Полный заряд</h4><p>Восстановить всю энергию</p></div>
+    <div class="star-item" id="si-energy">
+      <div class="star-info"><h4>⚡ Полный заряд</h4><p>Восстановить весь аппетит</p></div>
       <button class="star-btn" onclick="buyStars('energy')">50 ⭐</button>
     </div>
-    <div class="star-item">
+    <div class="star-item" id="si-double">
       <div class="star-info"><h4>🥕×2 бонус</h4><p>Двойной тап на 1 час</p></div>
       <button class="star-btn" onclick="buyStars('double')">100 ⭐</button>
     </div>
-    <div class="star-item">
-      <div class="star-info"><h4>🏅 Золотая Вася</h4><p>Уникальный скин навсегда</p></div>
-      <button class="star-btn" onclick="buyStars('skin')">500 ⭐</button>
+    <div class="star-item" id="si-skin">
+      <div class="star-info"><h4>🏅 Золотая Вася</h4><p>Сияющий золотой скин навсегда</p></div>
+      <button class="star-btn" id="sb-skin" onclick="buyStars('skin')">500 ⭐</button>
     </div>
   </div>
 </div>
@@ -312,20 +324,21 @@
 </div>
 
 <script>
-/* ── КОНФИГ ── */
 const CFG={
   BACKEND:'https://kapibarabigclub.onrender.com',
-  BOT:'kapibarabigclub_bot',
-  APP:'kapibarabigclub',
+  BOT:'kapibarabigclub_bot',APP:'kapibarabigclub',
   MAX_OFFLINE_H:4,SAVE_EVERY_S:15,
-  HUNGER_DRAIN_PER_HOUR:15,HUNGER_RESTORE_PER_TAP:0.5,
+  HUNGER_DRAIN_PER_HOUR:15,
+  HUNGER_RESTORE_PER_TAP:0.5,
+  ENERGY_COST_PER_TAP:3,      /* сколько энергии тратит каждый тап */
+  ENERGY_REGEN_PER_SEC:0.12,  /* восстановление энергии в секунду */
 };
 
-/* ── ССЫЛКИ STARS — вставь свои после /getlinks ── */
-const STARS_LINKS = {
-  starter: 'https://t.me/$XV-0jhHtuEl4FAAA9xIyMl0WHTo',
+/* ── РЕАЛЬНЫЕ ССЫЛКИ STARS ── */
+const STARS_LINKS={
   energy:  'https://t.me/$FK33ihHtuEl2FAAArqMht_lCnpU',
   double:  'https://t.me/$M0WbJxHtuEl3FAAADo8MlO9HdnU',
+  starter: 'https://t.me/$XV-0jhHtuEl4FAAA9xIyMl0WHTo',
   skin:    'https://t.me/$9LTxARHtuEl5FAAAYUMxdO7MvGo',
 };
 
@@ -360,7 +373,7 @@ const QUEST_DEFS=[
   {id:'hungry0', ico:'😋',name:'Сытый Вася',     desc:'Восстанови сытость выше 90%',type:'hunger', target:90,    reward:300},
 ];
 const DAILY_REWARDS=[500,1000,2000,3500,5000,7500,10000];
-const SPARK_COLORS=['#a78bfa','#ffd166','#ff6b6b','#4ecdc4','#fff'];
+const SPARK_COLORS=['#a78bfa','#ffd166','#ff6b6b','#4ecdc4','#ffd700'];
 
 let S={
   coins:0,total:0,energy:500,maxE:500,tap:1,ps:0,hunger:100,
@@ -368,9 +381,11 @@ let S={
   stage:0,refs:0,savedAt:Date.now(),
   lastDaily:0,dailyStreak:0,totalTaps:0,totalUpgrades:0,
   questClaimed:{},notifEnabled:false,
+  goldSkin:false,   /* куплен ли золотой скин */
+  bonusTapEnd:0,    /* когда заканчивается x2 */
 };
 let tg=window.Telegram?.WebApp,userId=null,refUrl='';
-let lastTick=Date.now(),saveAcc=0,psAcc=0,bonusTap=1,bonusEnd=0,hungerModalShown=false;
+let lastTick=Date.now(),saveAcc=0,psAcc=0,hungerModalShown=false;
 
 (async()=>{
   if(tg){tg.ready();tg.expand();userId=tg.initDataUnsafe?.user?.id;}
@@ -381,7 +396,7 @@ let lastTick=Date.now(),saveAcc=0,psAcc=0,bonusTap=1,bonusEnd=0,hungerModalShown
   document.getElementById('refLnk').textContent=refUrl;
   document.getElementById('refCnt').textContent=S.refs;
   renderShop();updateDailyBtn();setInterval(updateDailyBtn,60000);
-  updateQuestBadge();initNotif();loop();
+  updateQuestBadge();initNotif();updateGoldSkinUI();loop();
 })();
 
 async function loadState(){
@@ -398,8 +413,9 @@ function apply(d){
   if(!S.questClaimed)S.questClaimed={};
   if(!S.totalTaps)S.totalTaps=0;
   if(!S.totalUpgrades)S.totalUpgrades=0;
+  if(S.goldSkin===undefined)S.goldSkin=false;
   recalc();
-  S.energy=Math.min(S.maxE,S.energy+offS);
+  S.energy=Math.min(S.maxE,S.energy+offS*CFG.ENERGY_REGEN_PER_SEC);
   S.hunger=Math.max(0,S.hunger-(offS/3600)*CFG.HUNGER_DRAIN_PER_HOUR);
   if(offS>60&&S.ps>0){const earn=Math.floor(S.ps*offS*hungerMult());S.coins+=earn;S.total+=earn;if(earn>0)showOfflineModal(`+${fmt(earn)} 🥕`);}
   if(S.hunger<20&&offS>300){setTimeout(()=>document.getElementById('hungerModal').classList.add('show'),800);hungerModalShown=true;}
@@ -415,12 +431,14 @@ function recalc(){
   S.tap=tap;S.ps=ps;S.maxE=maxE;S.energy=Math.min(S.energy,S.maxE);
 }
 function hungerMult(){if(S.hunger>=50)return 1;if(S.hunger>=20)return .75;return .5;}
+function bonusMult(){return Date.now()<S.bonusTapEnd?2:1;}
 
 function loop(){
   const now=Date.now(),dt=(now-lastTick)/1000;lastTick=now;
   const hm=hungerMult();
   psAcc+=S.ps*dt*hm;if(psAcc>=1){const e=Math.floor(psAcc);S.coins+=e;S.total+=e;psAcc-=e;}
-  if(S.energy<S.maxE)S.energy=Math.min(S.maxE,S.energy+dt*.3);
+  /* Медленный реген энергии */
+  if(S.energy<S.maxE)S.energy=Math.min(S.maxE,S.energy+dt*CFG.ENERGY_REGEN_PER_SEC);
   S.hunger=Math.max(0,S.hunger-(CFG.HUNGER_DRAIN_PER_HOUR/3600)*dt);
   if(S.hunger<20&&!hungerModalShown){hungerModalShown=true;document.getElementById('hungerModal').classList.add('show');}
   if(S.hunger>=30)hungerModalShown=false;
@@ -429,17 +447,27 @@ function loop(){
 }
 
 function onTap(ev){
-  if(S.energy<1){fl('😴 нет аппетита',ev.clientX,ev.clientY,'#8880aa');tg?.HapticFeedback?.notificationOccurred('error');return;}
+  if(S.energy<1){
+    fl('😴 нет аппетита',ev.clientX,ev.clientY,'#8880aa');
+    tg?.HapticFeedback?.notificationOccurred('error');return;
+  }
   S.hunger=Math.min(100,S.hunger+CFG.HUNGER_RESTORE_PER_TAP);S.totalTaps++;
-  const mult=(Date.now()<bonusEnd)?bonusTap:1,hm=hungerMult();
-  const earn=Math.max(1,Math.floor(S.tap*mult*hm));
-  S.coins+=earn;S.total+=earn;S.energy=Math.max(0,S.energy-1);
+  const hm=hungerMult(),bm=bonusMult();
+  const earn=Math.max(1,Math.floor(S.tap*bm*hm));
+  S.coins+=earn;S.total+=earn;
+  /* Быстрый расход энергии */
+  S.energy=Math.max(0,S.energy-CFG.ENERGY_COST_PER_TAP);
   const card=document.getElementById('capyCard');card.classList.remove('tapped');void card.offsetWidth;card.classList.add('tapped');
+  const col=S.goldSkin?'#ffd700':hm<1?'#ffb347':'#ffd166';
   spawnSparks(ev.clientX,ev.clientY,earn);
-  fl(`+${earn} 🥕`,ev.clientX,ev.clientY,hm<1?'#ffb347':'#ffd166');
+  fl(`+${earn} 🥕`,ev.clientX,ev.clientY,col);
   const glow=document.getElementById('capyGlow');
-  glow.style.background='radial-gradient(circle,rgba(167,139,250,.5) 0%,transparent 70%)';
-  setTimeout(()=>glow.style.background='radial-gradient(circle,rgba(167,139,250,.2) 0%,transparent 70%)',200);
+  const glowCol=S.goldSkin?'rgba(255,215,0,.6)':'rgba(167,139,250,.5)';
+  glow.style.background=`radial-gradient(circle,${glowCol} 0%,transparent 70%)`;
+  setTimeout(()=>{
+    const gc=S.goldSkin?'rgba(255,215,0,.35)':'rgba(167,139,250,.2)';
+    glow.style.background=`radial-gradient(circle,${gc} 0%,transparent 70%)`;
+  },200);
   tg?.HapticFeedback?.impactOccurred('light');playTap(earn);checkEvo();updateQuestBadge();
 }
 function spawnSparks(x,y,earn){
@@ -447,7 +475,8 @@ function spawnSparks(x,y,earn){
   for(let i=0;i<count;i++){
     const el=document.createElement('div');el.className='spark';
     const angle=(Math.PI*2/count)*i+Math.random()*.5,dist=40+Math.random()*45;
-    el.style.cssText=`left:${x-4}px;top:${y-4}px;background:${SPARK_COLORS[i%SPARK_COLORS.length]};--dx:${Math.cos(angle)*dist}px;--dy:${Math.sin(angle)*dist}px;`;
+    const col=S.goldSkin?['#ffd700','#ffaa00','#ffe066'][i%3]:SPARK_COLORS[i%SPARK_COLORS.length];
+    el.style.cssText=`left:${x-4}px;top:${y-4}px;background:${col};--dx:${Math.cos(angle)*dist}px;--dy:${Math.sin(angle)*dist}px;`;
     document.body.appendChild(el);setTimeout(()=>el.remove(),650);
   }
 }
@@ -469,23 +498,31 @@ function checkEvo(){
     }
   }
 }
+
+/* ── UI ── */
 function ui(){
   const h=Math.floor(S.hunger);
   document.getElementById('cDisp').textContent=fmt(Math.floor(S.coins));
   document.getElementById('eDisp').textContent=`${Math.floor(S.energy)}/${S.maxE}`;
   document.getElementById('eTxt').textContent=`${Math.floor(S.energy)}/${S.maxE}`;
   document.getElementById('eFill').style.width=(S.energy/S.maxE*100)+'%';
-  document.getElementById('tpDisp').textContent=S.tap;
+  document.getElementById('tpDisp').textContent=S.tap*(bonusMult()>1?'×2':1==1?S.tap:S.tap);
+  document.getElementById('tpDisp').textContent=S.tap+(bonusMult()>1?' ×2':'');
   document.getElementById('psDisp').textContent=fmt(S.ps);
   const st=STAGES[S.stage];
   document.getElementById('stageLbl').textContent=`${st.ico} СТАДИЯ: ${st.name.toUpperCase()}`;
   document.getElementById('hungerTxt').textContent=`${h}/100`;
   const hFill=document.getElementById('hFill');hFill.style.width=h+'%';
   hFill.className='bar-fill bar-fill-hunger'+(h<20?' crit':h<50?' low':'');
+  /* Скин */
   const img=document.getElementById('capyImg');
-  let cls=`skin-${STAGES[S.stage].skin}`;
-  if(h<20)cls+=' starving';else if(h<50)cls+=' hungry';
-  img.className=cls;
+  if(S.goldSkin){
+    img.className='skin-gold';
+  } else {
+    let cls=`skin-${STAGES[S.stage].skin}`;
+    if(h<20)cls+=' starving';else if(h<50)cls+=' hungry';
+    img.className=cls;
+  }
   document.getElementById('hungerAlert').style.display=h<30?'block':'none';
   const hint=document.getElementById('tapHint');
   if(h<20)hint.textContent='😢 Вася очень голоден! Тапай скорее!';
@@ -493,12 +530,11 @@ function ui(){
   else hint.textContent='Нажимай на Васю, чтобы кормить!';
 }
 function fmt(n){
-  if(n>=1e9)return(n/1e9).toFixed(1)+'B';
-  if(n>=1e6)return(n/1e6).toFixed(1)+'M';
-  if(n>=1e3)return(n/1e3).toFixed(1)+'K';
-  return Number.isInteger(n)?String(n):n.toFixed(1);
+  if(n>=1e9)return(n/1e9).toFixed(1)+'B';if(n>=1e6)return(n/1e6).toFixed(1)+'M';
+  if(n>=1e3)return(n/1e3).toFixed(1)+'K';return Number.isInteger(n)?String(n):n.toFixed(1);
 }
 
+/* ── SHOP ── */
 function renderShop(){
   const c=document.getElementById('shopList');c.innerHTML='';
   for(const u of UPGS){
@@ -535,37 +571,51 @@ function buy(id){
   tg?.HapticFeedback?.impactOccurred('medium');updateQuestBadge();
 }
 
+/* ── GOLD SKIN UI ── */
+function updateGoldSkinUI(){
+  const item=document.getElementById('si-skin');
+  const btn=document.getElementById('sb-skin');
+  if(S.goldSkin&&item&&btn){
+    item.classList.add('owned');
+    btn.textContent='✅ Куплено';
+    btn.classList.add('owned');
+    btn.disabled=true;
+    /* Золотое кольцо */
+    document.getElementById('capyRing').classList.add('gold-ring');
+    document.getElementById('capyGlow').classList.add('gold-glow');
+  }
+}
+
 /* ── STARS ── */
 function buyStars(product){
   const link=STARS_LINKS[product];
-  if(!link||link.includes('ВСТАВЬ')){
-    tg?.showAlert?.('Оплата временно недоступна. Попробуй позже.');
-    return;
-  }
-  if(tg?.openInvoice){
-    tg.openInvoice(link,(status)=>{
-      if(status==='paid'){
-        if(product==='energy'){
-          S.energy=S.maxE;
-          tg?.showAlert?.('⚡ Энергия восстановлена!');
-        }
-        if(product==='double'){
-          bonusTap=2;bonusEnd=Date.now()+3600000;
-          tg?.showAlert?.('🥕×2 активирован на 1 час!');
-        }
-        if(product==='skin'){
-          tg?.showAlert?.('🏅 Золотая Вася активирована!');
-        }
-        if(product==='starter'){
-          S.coins+=5000;S.total+=5000;
-          tg?.showAlert?.('🚀 +5 000 морковок зачислено!');
-        }
-        save();
-      }
-    });
-  } else {
-    window.open(link);
-  }
+  if(!link){tg?.showAlert?.('Оплата временно недоступна.');return;}
+  if(product==='skin'&&S.goldSkin){tg?.showAlert?.('🏅 Золотая Вася уже активирована!');return;}
+  const handler=(status)=>{
+    if(status!=='paid')return;
+    if(product==='energy'){
+      S.energy=S.maxE;
+      tg?.showAlert?.('⚡ Аппетит полностью восстановлен!');
+    }
+    if(product==='double'){
+      S.bonusTapEnd=Date.now()+3600000;
+      tg?.showAlert?.('🥕×2 активирован на 1 час!');
+    }
+    if(product==='starter'){
+      S.coins+=5000;S.total+=5000;
+      tg?.showAlert?.('🚀 +5 000 морковок зачислено!');
+    }
+    if(product==='skin'){
+      S.goldSkin=true;
+      updateGoldSkinUI();
+      tg?.showAlert?.('🏅 Золотая Вася активирована навсегда!');
+      tg?.HapticFeedback?.notificationOccurred('success');
+      playEvolve();
+    }
+    save();
+  };
+  if(tg?.openInvoice){tg.openInvoice(link,handler);}
+  else{window.open(link);}
 }
 
 /* ── ADS ── */
@@ -651,8 +701,7 @@ function openDaily(){
   document.getElementById('dailyModal').classList.add('show');
 }
 function claimDaily(){
-  const now=Date.now(),elapsed=now-(S.lastDaily||0);
-  if(elapsed<20*3600*1000)return;
+  const now=Date.now(),elapsed=now-(S.lastDaily||0);if(elapsed<20*3600*1000)return;
   const idx=Math.min(S.dailyStreak||0,DAILY_REWARDS.length-1),reward=DAILY_REWARDS[idx];
   S.coins+=reward;S.total+=reward;S.dailyStreak=(S.dailyStreak||0)+1;S.lastDaily=now;
   document.getElementById('dailyModal').classList.remove('show');
@@ -734,7 +783,7 @@ function goTo(name){
     document.getElementById('s'+n).classList.toggle('active',n===name);
     document.getElementById('n'+n).classList.toggle('active',n===name);
   });
-  if(name==='Shop')refreshBtns();
+  if(name==='Shop'){refreshBtns();updateGoldSkinUI();}
 }
 function showOfflineModal(txt){document.getElementById('ofAmt').textContent=txt;document.getElementById('ofModal').classList.add('show');}
 function closeOfflineModal(){document.getElementById('ofModal').classList.remove('show');}
