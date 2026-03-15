@@ -525,6 +525,7 @@ function claimDaily() {
   document.getElementById('dailyModal').classList.remove('show');
   fl(`+${fmt(reward)} 🥕`, window.innerWidth/2, window.innerHeight/2, '#f0a500');
   tg?.HapticFeedback?.notificationOccurred('success');
+  playDaily();
   save();
   updateDailyBtn();
 }
@@ -548,6 +549,78 @@ function updateDailyBtn() {
 /* Цвета искр */
 const SPARK_COLORS = ['#f0a500','#ffd700','#ff6b6b','#4ecdc4','#fff'];
 
+/* ── ЗВУК ── */
+let audioCtx = null;
+
+function getAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function playTap(earn) {
+  try {
+    const ctx  = getAudio();
+    const osc  = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    /* Высота звука зависит от силы тапа */
+    const freq = 300 + Math.min(earn * 8, 500);
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(freq * 1.4, ctx.currentTime + 0.06);
+
+    /* Короткий удар */
+    gain.gain.setValueAtTime(0.18, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
+
+    osc.type = 'sine';
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.12);
+  } catch(e) {}
+}
+
+function playEvolve() {
+  try {
+    const ctx   = getAudio();
+    const notes = [523, 659, 784, 1047]; /* До-Ми-Соль-До */
+    notes.forEach((freq, i) => {
+      const osc  = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      const t = ctx.currentTime + i * 0.12;
+      osc.frequency.setValueAtTime(freq, t);
+      gain.gain.setValueAtTime(0.15, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+      osc.type = 'sine';
+      osc.start(t);
+      osc.stop(t + 0.2);
+    });
+  } catch(e) {}
+}
+
+function playDaily() {
+  try {
+    const ctx   = getAudio();
+    const notes = [784, 988, 1175];
+    notes.forEach((freq, i) => {
+      const osc  = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      const t = ctx.currentTime + i * 0.15;
+      osc.frequency.setValueAtTime(freq, t);
+      gain.gain.setValueAtTime(0.12, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+      osc.type = 'triangle';
+      osc.start(t);
+      osc.stop(t + 0.25);
+    });
+  } catch(e) {}
+}
+
+ 
 (async()=>{
   if(tg){ tg.ready(); tg.expand(); userId=tg.initDataUnsafe?.user?.id; }
   await loadState();
@@ -666,6 +739,7 @@ function onTap(ev){
   setTimeout(()=>glow.style.background='radial-gradient(circle, rgba(240,165,0,0.18) 0%, rgba(240,165,0,0) 70%)',200);
 
   tg?.HapticFeedback?.impactOccurred('light');
+  playTap(earn);
   checkEvo();
 }
 
@@ -704,6 +778,7 @@ function checkEvo(){
         b.textContent=`${st.ico} Новая стадия: ${st.name}! Скин: ${st.color}`;
         b.style.display='block';
         tg?.HapticFeedback?.notificationOccurred('success');
+        playEvolve();
         setTimeout(()=>b.style.display='none',3200);
       }
       break;
