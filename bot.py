@@ -1,4 +1,5 @@
 import os, json, urllib.request, time, threading
+from http.server import HTTPServer, BaseHTTPRequestHandler
 
 TOKEN    = os.environ['BOT_TOKEN']
 APP_URL  = 'https://kapibarabigclub.pages.dev'
@@ -57,19 +58,16 @@ def send(chat_id, text, keyboard=None):
 
 def get_invoice_links(chat_id):
     products = [
-        ('⚡ Полный заряд аппетита', 'Восстановить всю энергию Васи мгновенно', 'energy_refill', 50),
-        ('🥕×2 Двойной доход',       'Двойной доход от тапов на 1 час',          'double_tap',    100),
-        ('🚀 Стартовый пак',         '+5000 морковок сразу на счёт',              'starter_pack',  200),
-        ('🏅 Золотая Вася',          'Уникальный золотой скин навсегда',          'gold_skin',     500),
+        ('⚡ Полный заряд аппетита', 'Восстановить всю энергию Васи', 'energy_refill', 50),
+        ('🥕×2 Двойной доход',       'Двойной доход от тапов на 1 час', 'double_tap',  100),
+        ('🚀 Стартовый пак',         '+5000 морковок сразу',            'starter_pack', 200),
+        ('🏅 Золотая Вася',          'Уникальный золотой скин навсегда','gold_skin',    500),
     ]
     results = []
     for title, desc, payload, amount in products:
         data = {
-            'chat_id': chat_id,
-            'title': title,
-            'description': desc,
-            'payload': payload,
-            'currency': 'XTR',
+            'chat_id': chat_id, 'title': title, 'description': desc,
+            'payload': payload, 'currency': 'XTR',
             'prices': [{'label': title, 'amount': amount}]
         }
         result = api_call('createInvoiceLink', data)
@@ -95,19 +93,12 @@ def handle(msg):
         return
 
     if text.startswith('/start'):
-        keyboard = {'inline_keyboard': [[{
-            'text': '🦫 Играть',
-            'web_app': {'url': APP_URL}
-        }]]}
+        keyboard = {'inline_keyboard': [[{'text': '🦫 Играть', 'web_app': {'url': APP_URL}}]]}
         send(chat_id,
             f'Привет, {name}! 👋\n\n'
             '🦫 Добро пожаловать в <b>Капибара Клуб</b>!\n\n'
-            '🥕 Корми Васю\n'
-            '📈 Прокачивай улучшения\n'
-            '🏆 Стань легендой в рейтинге\n\n'
-            'Нажми кнопку ниже чтобы начать:',
-            keyboard
-        )
+            '🥕 Корми Васю\n📈 Прокачивай улучшения\n🏆 Стань легендой в рейтинге\n\n'
+            'Нажми кнопку ниже чтобы начать:', keyboard)
         return
 
     if text.startswith('/help'):
@@ -118,8 +109,7 @@ def handle(msg):
             '🍖 Сытость падает если не играть\n'
             '🛒 Покупай улучшения в магазине\n'
             '👥 Приглашай друзей — +500 морковок\n\n'
-            '/start — начать игру'
-        )
+            '/start — начать игру')
 
 def send_notifications():
     while True:
@@ -129,10 +119,7 @@ def send_notifications():
             print(f'Уведомления: {len(users)} пользователей')
             for i, u in enumerate(users):
                 msg = NOTIF_MESSAGES[i % len(NOTIF_MESSAGES)]
-                keyboard = {'inline_keyboard': [[{
-                    'text': '🦫 Покормить Васю!',
-                    'web_app': {'url': APP_URL}
-                }]]}
+                keyboard = {'inline_keyboard': [[{'text': '🦫 Покормить Васю!', 'web_app': {'url': APP_URL}}]]}
                 result = send(u['chat_id'], msg, keyboard)
                 if result.get('ok'):
                     backend_post('/notify/sent', {'user_id': u['user_id']})
@@ -141,16 +128,13 @@ def send_notifications():
             print(f'Ошибка уведомлений: {e}')
         time.sleep(1800)
 
-def main():
+def bot_loop():
     global OFFSET
     print('Бот запущен!')
-    t = threading.Thread(target=send_notifications, daemon=True)
-    t.start()
     while True:
         try:
             resp = api_call('getUpdates', {
-                'offset': OFFSET,
-                'timeout': 30,
+                'offset': OFFSET, 'timeout': 30,
                 'allowed_updates': ['message']
             })
             for upd in resp.get('result', []):
@@ -161,5 +145,25 @@ def main():
             print(f'Ошибка: {e}')
             time.sleep(5)
 
+# ── Минимальный веб-сервер чтобы Render не падал ──
+class HealthHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b'OK')
+    def log_message(self, *args):
+        pass  # отключаем логи запросов
+
+def run_server():
+    port = int(os.environ.get('PORT', 10000))
+    server = HTTPServer(('0.0.0.0', port), HealthHandler)
+    print(f'Health server on port {port}')
+    server.serve_forever()
+
 if __name__ == '__main__':
-    main()
+    # Запускаем веб-сервер в фоне
+    threading.Thread(target=run_server, daemon=True).start()
+    # Запускаем уведомления в фоне
+    threading.Thread(target=send_notifications, daemon=True).start()
+    # Основной поток — бот
+    bot_loop()
