@@ -29,6 +29,18 @@ def init_db():
           );
         """)
 
+@app.route('/refs/<int:user_id>')
+def get_refs(user_id):
+    with get_db() as conn:
+        try:
+            count = conn.execute(
+                'SELECT COUNT(*) as cnt FROM referrals WHERE referred_by=?',
+                (user_id,)
+            ).fetchone()
+            return jsonify(refs=count['cnt'] if count else 0)
+        except:
+            return jsonify(refs=0)
+
 @app.route('/health')
 def health():
     return jsonify(ok=True, ts=int(time.time()))
