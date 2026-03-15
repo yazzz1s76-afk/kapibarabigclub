@@ -987,6 +987,36 @@ function goTo(name){
 /* ── MODALS ── */
 function showOfflineModal(txt){ document.getElementById('ofAmt').textContent=txt; document.getElementById('ofModal').classList.add('show'); }
 function closeOfflineModal(){ document.getElementById('ofModal').classList.remove('show'); }
+/* ── УВЕДОМЛЕНИЯ ── */
+function initNotif(){
+  const enabled = S.notifEnabled !== false;
+  updateNotifUI(enabled);
+  document.getElementById('notifToggle').checked = enabled;
+}
+
+function updateNotifUI(enabled){
+  document.getElementById('notifLabel').textContent = enabled ? 'Включены ✅' : 'Отключены';
+  document.getElementById('notifTrack').style.background = enabled ? 'var(--btn)' : 'rgba(255,255,255,0.15)';
+  document.getElementById('notifThumb').style.transform = enabled ? 'translateX(20px)' : 'translateX(0)';
+}
+
+async function toggleNotif(enabled){
+  S.notifEnabled = enabled;
+  updateNotifUI(enabled);
+  save();
+  if(!userId) return;
+  try{
+    await fetch(`${CFG.BACKEND}/notify/register`,{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        user_id: userId,
+        chat_id: userId,
+        enabled: enabled,
+      })
+    });
+    tg?.showAlert?.(enabled ? '🔔 Уведомления включены!' : '🔕 Уведомления отключены');
+  }catch(e){}
+}
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 </script>
 </body>
