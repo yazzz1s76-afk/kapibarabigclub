@@ -1,7 +1,9 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import sqlite3, hmac, hashlib, time, os
 
 app = Flask(__name__)
+CORS(app)
 BOT_TOKEN = os.environ.get('BOT_TOKEN', '')
 DB = 'kapibara.db'
 MAX_PER_HOUR = 200000
