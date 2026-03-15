@@ -85,6 +85,19 @@
     display:block;
   }
   .capy-card img.hungry  { filter: grayscale(60%) brightness(0.75) saturate(0.5); }
+   /* Скины по стадиям */
+  .skin-0 { filter: none; }
+  .skin-1 { filter: sepia(0.3) saturate(1.4) hue-rotate(10deg); }
+  .skin-2 { filter: sepia(0.5) saturate(1.8) hue-rotate(25deg) brightness(1.1); }
+  .skin-3 { filter: hue-rotate(220deg) saturate(1.6) brightness(1.1); }
+  .skin-4 { animation: rainbow 3s linear infinite !important; }
+  @keyframes rainbow {
+    0%   { filter: hue-rotate(0deg)   saturate(2) brightness(1.2); }
+    25%  { filter: hue-rotate(90deg)  saturate(2) brightness(1.2); }
+    50%  { filter: hue-rotate(180deg) saturate(2) brightness(1.2); }
+    75%  { filter: hue-rotate(270deg) saturate(2) brightness(1.2); }
+    100% { filter: hue-rotate(360deg) saturate(2) brightness(1.2); }
+  }
   @keyframes hungerPulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
   .capy-card img.starving { filter: grayscale(90%) brightness(0.6); animation: hungerPulse 1.2s infinite; }
 
@@ -416,11 +429,11 @@ const CFG = {
 };
 
 const STAGES = [
-  { name:'Васятка', need:0    },
-  { name:'Пухляш',  need:1e3  },
-  { name:'Толстяк', need:1e4  },
-  { name:'Босс',    need:1e5  },
-  { name:'Легенда', need:1e6  },
+  { name:'Васятка', need:0,   skin:0, color:'обычная', ico:'🦫' },
+  { name:'Пухляш',  need:1e3, skin:1, color:'тёплая',  ico:'🧡' },
+  { name:'Толстяк', need:1e4, skin:2, color:'золотая', ico:'🌟' },
+  { name:'Босс',    need:1e5, skin:3, color:'синяя',   ico:'💙' },
+  { name:'Легенда', need:1e6, skin:4, color:'радуга',  ico:'🌈' },
 ];
 
 const UPGS = [
@@ -687,7 +700,8 @@ function checkEvo(){
       if(S.stage!==i){
         S.stage=i;
         const b=document.getElementById('evBanner');
-        b.textContent=`🎉 Вася вырос! Стадия: ${STAGES[i].name}`;
+        const st = STAGES[i];
+        b.textContent=`${st.ico} Новая стадия: ${st.name}! Скин: ${st.color}`;
         b.style.display='block';
         tg?.HapticFeedback?.notificationOccurred('success');
         setTimeout(()=>b.style.display='none',3200);
@@ -705,15 +719,20 @@ function ui(){
   document.getElementById('eFill').style.width=(S.energy/S.maxE*100)+'%';
   document.getElementById('tpDisp').textContent=S.tap;
   document.getElementById('psDisp').textContent=S.ps;
-  document.getElementById('stageLbl').textContent=`Стадия: ${STAGES[S.stage].name}`;
+  const st = STAGES[S.stage];
+  document.getElementById('stageLbl').textContent=`${st.ico} ${st.name} · скин: ${st.color}`;
 
   document.getElementById('hungerTxt').textContent=`${h}/100`;
   const hFill=document.getElementById('hFill');
   hFill.style.width=h+'%';
   hFill.className='bar-fill bar-fill-hunger'+(h<20?' crit':h<50?' low':'');
 
-  const img=document.getElementById('capyImg');
-  img.className=h<20?'starving':h<50?'hungry':'';
+  const img  = document.getElementById('capyImg');
+  const skin = STAGES[S.stage].skin;
+  let cls    = `skin-${skin}`;
+  if      (h < 20) cls += ' starving';
+  else if (h < 50) cls += ' hungry';
+  img.className = cls;
 
   document.getElementById('hungerAlert').style.display=h<30?'block':'none';
 
