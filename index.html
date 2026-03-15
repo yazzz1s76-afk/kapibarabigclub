@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Капибара Клуб</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://sad.adsgram.ai/js/sad.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -620,7 +621,7 @@ function buyStars(product){
 
 /* ── ADS ── */
 let AdController;
-async function initAds(){try{AdController=await window.Adsgram?.init({blockId:'ТВОЙ_BLOCK_ID',debug:false});}catch(e){}}
+async function initAds(){try{AdController=await window.Adsgram?.init({blockId:'25203',debug:false});}catch(e){}}
 async function watchAd(){
   if(!AdController){tg?.showAlert?.('Реклама пока недоступна');return;}
   try{const r=await AdController.show();if(r.done){S.energy=Math.min(S.maxE,S.energy+200);tg?.showAlert?.('⚡ +200 энергии!');}}
