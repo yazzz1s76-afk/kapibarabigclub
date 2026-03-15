@@ -396,6 +396,7 @@ let lastTick=Date.now(),saveAcc=0,psAcc=0,hungerModalShown=false;
   refUrl=`https://t.me/${CFG.BOT}/${CFG.APP}?startapp=ref_${userId||0}`;
   document.getElementById('refLnk').textContent=refUrl;
   document.getElementById('refCnt').textContent=S.refs;
+  loadRefCount();
   renderShop();updateDailyBtn();setInterval(updateDailyBtn,60000);
   updateQuestBadge();initNotif();updateGoldSkinUI();loop();
 })();
@@ -749,6 +750,16 @@ async function submitScore(){
 }
 
 /* ── REFERRALS ── */
+async function loadRefCount(){
+  if(!userId)return;
+  try{
+    const r=await fetch(`${CFG.BACKEND}/refs/${userId}`);
+    const d=await r.json();
+    S.refs=d.refs||0;
+    document.getElementById('refCnt').textContent=S.refs;
+    save();
+  }catch{}
+}
 async function registerRef(byId){
   if(!userId||byId===String(userId))return;
   try{await fetch(`${CFG.BACKEND}/referral`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:userId,referred_by:byId,init_data:tg?.initData||''})});}catch{}
