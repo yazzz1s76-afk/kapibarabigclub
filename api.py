@@ -88,6 +88,57 @@ def referral():
         )
     return jsonify(ok=True)
 
+@app.route('/notify/register', methods=['POST'])
+def notify_register():
+    d = request.json or {}
+    uid     = int(d.get('user_id', 0))
+    chat_id = int(d.get('chat_id', 0))
+    enabled = bool(d.get('enabled', True))
+    if not uid or not chat_id:
+        return jsonify(ok=False)
+    with get_db() as conn:
+        conn.executescript("""
+          CREATE TABLE IF NOT EXISTS notifications(
+            user_id   INTEGER PRIMARY KEY,
+            chat_id   INTEGER,
+            enabled   INTEGER DEFAULT 1,
+            last_sent INTEGER DEFAULT 0
+          );
+        """)
+        conn.execute(
+            'INSERT INTO notifications(user_id,chat_id,enabled,last_sent) VALUES(?,?,?,0) '
+            'ON CONFLICT(user_id) DO UPDATE SET chat_id=excluded.chat_id, enabled=excluded.enabled',
+            (uid, chat_id, 1 if enabled else 0)
+        )
+    return jsonify(ok=True)
+
+@app.route('/notify/pending')
+def notify_pending():
+    with get_db() as conn:
+        try:
+            rows = conn.execute(
+                'SELECT user_id, chat_id FROM notifications '
+                'WHERE enabled=1 AND (? - last_sent) > 14400',
+                (int(time.time()),)
+            ).fetchall()
+        except:
+            rows = []
+    return jsonify(users=[dict(r) for r in rows])
+
+@app.route('/notify/sent', methods=['POST'])
+def notify_sent():
+    d = request.json or {}
+    uid = int(d.get('user_id', 0))
+    with get_db() as conn:
+        try:
+            conn.execute(
+                'UPDATE notifications SET last_sent=? WHERE user_id=?',
+                (int(time.time()), uid)
+            )
+        except:
+            pass
+    return jsonify(ok=True)
+
 if __name__ == '__main__':
     init_db()
     port = int(os.environ.get('PORT', 5000))
