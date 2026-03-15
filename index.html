@@ -507,7 +507,7 @@ function loop(){
   }
   if(S.hunger>=30) hungerModalShown=false;
   saveAcc+=dt;
-  if(saveAcc>=CFG.SAVE_EVERY_S){ save(); saveAcc=0; }
+  if (saveAcc >= CFG.SAVE_EVERY_S) { save(); submitScore(); saveAcc=0; }
   ui();
   requestAnimationFrame(loop);
 }
@@ -707,9 +707,21 @@ async function loadLb(){
   }catch{ w.innerHTML='<p style="padding:14px;color:var(--hint)">Ошибка соединения</p>'; }
 }
 
-async function submitScore(){
-  if(!userId) return;
-  try{ await fetch(`${CFG.BACKEND}/score`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:userId,name:tg?.initDataUnsafe?.user?.first_name||'Игрок',score:Math.floor(S.total),init_data:tg?.initData||''})}); }catch{}
+async function submitScore() {
+  const name = tg?.initDataUnsafe?.user?.first_name || 'Игрок';
+  const id   = userId || ('guest_' + Math.random().toString(36).slice(2,8));
+  try {
+    await fetch(`${CFG.BACKEND}/score`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        user_id: id,
+        name:    name,
+        score:   Math.floor(S.total),
+        init_data: tg?.initData || '',
+      })
+    });
+  } catch {}
 }
 
 async function registerRef(byId){
