@@ -564,9 +564,9 @@ const SPARK_COLORS = ['#f0a500','#ffd700','#ff6b6b','#4ecdc4','#fff'];
 
 async function loadState(){
   return new Promise(res=>{
-    const local=()=>{ try{ const d=localStorage.getItem('kap'); if(d) apply(JSON.parse(d)); }catch(e){} res(); };
+    const local=()=>{ try{ const d=localStorage.getItem('kap_v2'); if(d) apply(JSON.parse(d)); }catch(e){} res(); };
     if(tg?.CloudStorage){
-      tg.CloudStorage.getItem('ks',(e,v)=>{ if(!e&&v){ try{ apply(JSON.parse(v)); }catch(err){} } else local(); res(); });
+      tg.CloudStorage.getItem('ks2',(e,v)=>{ if(!e&&v){ try{ apply(JSON.parse(v)); }catch(err){} } else local(); res(); });
     } else local();
   });
 }
@@ -594,7 +594,7 @@ function apply(d){
 function save(){
   S.savedAt=Date.now();
   const j=JSON.stringify(S);
-  localStorage.setItem('kap',j);
+  localStorage.setItem('kap_v2',j);
   if(tg?.CloudStorage) tg.CloudStorage.setItem('ks',j,()=>{});
 }
 
