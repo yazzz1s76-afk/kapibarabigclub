@@ -233,7 +233,19 @@
 </style>
 </head>
 <body>
-
+ 
+<!-- DAILY MODAL -->
+<div class="modal-ov" id="dailyModal">
+  <div class="modal-box" style="max-width:310px">
+    <div style="font-size:56px;margin-bottom:6px" id="dailyEmoji">🎁</div>
+    <h2>Ежедневная награда!</h2>
+    <p>Заходи каждый день и получай всё больше морковок</p>
+    <div style="display:flex;justify-content:center;gap:8px;margin:14px 0;flex-wrap:wrap" id="dailyStreak"></div>
+    <div class="modal-amt" id="dailyAmt">+500 🥕</div>
+    <button class="modal-btn" id="dailyClaimBtn" onclick="claimDaily()">Забрать!</button>
+  </div>
+</div>
+ 
 <!-- HELP MODAL -->
 <div class="modal-ov" id="helpModal">
   <div class="modal-box" style="max-width:310px">
@@ -284,6 +296,10 @@
   <div class="coins-disp">🥕 <span id="cDisp">0</span></div>
   <div style="display:flex;align-items:center;gap:10px">
     <div class="energy-disp">⚡ <span id="eDisp">500/500</span></div>
+   <button id="dailyBtn" onclick="openDaily()" style="
+      background:rgba(240,165,0,0.15);border:1px solid rgba(240,165,0,0.4);border-radius:10px;
+      padding:4px 10px;font-size:12px;cursor:pointer;color:var(--gold);
+      display:flex;align-items:center;gap:4px;flex-shrink:0;">🎁 <span id="dailyBtnTxt">Награда!</span></button>
     <button onclick="document.getElementById('helpModal').classList.add('show')" style="
       background:rgba(255,255,255,0.1);border:none;border-radius:50%;
       width:28px;height:28px;font-size:15px;cursor:pointer;color:var(--text);
@@ -426,6 +442,93 @@ let lastTick=Date.now(), saveAcc=0, psAcc=0;
 let bonusTap=1, bonusEnd=0;
 let hungerModalShown=false;
 
+/* ── DAILY REWARD ── */
+const DAILY_REWARDS = [500, 1000, 2000, 3500, 5000, 7500, 10000];
+
+function openDaily() {
+  const now      = Date.now();
+  const lastDay  = S.lastDaily || 0;
+  const streak   = S.dailyStreak || 0;
+  const elapsed  = now - lastDay;
+  const canClaim = elapsed >= 20 * 3600 * 1000; // 20 часов
+  const expired  = elapsed >= 48 * 3600 * 1000; // пропустил день
+
+  // Если пропустил — сброс серии
+  if (expired && lastDay > 0) S.dailyStreak = 0;
+
+  const idx     = Math.min(S.dailyStreak || 0, DAILY_REWARDS.length - 1);
+  const reward  = DAILY_REWARDS[idx];
+
+  // Полоска дней
+  const streak7 = document.getElementById('dailyStreak');
+  streak7.innerHTML = DAILY_REWARDS.map((r, i) => {
+    const done    = i < idx;
+    const current = i === idx;
+    return `<div style="
+      width:38px;height:50px;border-radius:10px;
+      background:${done ? 'rgba(240,165,0,0.3)' : current ? 'rgba(240,165,0,0.15)' : 'rgba(255,255,255,0.05)'};
+      border:1px solid ${current ? 'var(--gold)' : 'rgba(255,255,255,0.1)'};
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+      font-size:10px;color:${done ? 'var(--gold)' : current ? 'var(--text)' : 'var(--hint)'}">
+      <div style="font-size:14px">${done ? '✅' : current ? '🎁' : '🔒'}</div>
+      <div>День ${i+1}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('dailyAmt').textContent = `+${fmt(reward)} 🥕`;
+  document.getElementById('dailyEmoji').textContent = canClaim ? '🎁' : '⏳';
+
+  const btn = document.getElementById('dailyClaimBtn');
+  if (canClaim) {
+    btn.textContent = 'Забрать!';
+    btn.disabled    = false;
+    btn.style.opacity = '1';
+  } else {
+    const left = Math.ceil((20 * 3600 * 1000 - elapsed) / 3600000);
+    btn.textContent = `Ещё ${left} ч`;
+    btn.disabled    = true;
+    btn.style.opacity = '0.5';
+  }
+
+  document.getElementById('dailyModal').classList.add('show');
+}
+
+function claimDaily() {
+  const now     = Date.now();
+  const elapsed = now - (S.lastDaily || 0);
+  if (elapsed < 20 * 3600 * 1000) return;
+
+  const idx    = Math.min(S.dailyStreak || 0, DAILY_REWARDS.length - 1);
+  const reward = DAILY_REWARDS[idx];
+
+  S.coins      += reward;
+  S.total      += reward;
+  S.dailyStreak = (S.dailyStreak || 0) + 1;
+  S.lastDaily   = now;
+
+  document.getElementById('dailyModal').classList.remove('show');
+  fl(`+${fmt(reward)} 🥕`, window.innerWidth/2, window.innerHeight/2, '#f0a500');
+  tg?.HapticFeedback?.notificationOccurred('success');
+  save();
+  updateDailyBtn();
+}
+
+function updateDailyBtn() {
+  const elapsed  = Date.now() - (S.lastDaily || 0);
+  const canClaim = elapsed >= 20 * 3600 * 1000;
+  const btn      = document.getElementById('dailyBtn');
+  const txt      = document.getElementById('dailyBtnTxt');
+  if (!btn) return;
+  if (canClaim) {
+    txt.textContent    = 'Награда!';
+    btn.style.animation = 'pulse 1.5s infinite';
+  } else {
+    const left = Math.ceil((20 * 3600 * 1000 - elapsed) / 3600000);
+    txt.textContent    = `${left}ч`;
+    btn.style.animation = 'none';
+  }
+}
+ 
 /* Цвета искр */
 const SPARK_COLORS = ['#f0a500','#ffd700','#ff6b6b','#4ecdc4','#fff'];
 
@@ -438,6 +541,8 @@ const SPARK_COLORS = ['#f0a500','#ffd700','#ff6b6b','#4ecdc4','#fff'];
   document.getElementById('refLnk').textContent=refUrl;
   document.getElementById('refCnt').textContent=S.refs;
   renderShop();
+  updateDailyBtn();
+  setInterval(updateDailyBtn, 60000);
   loop();
 })();
 
