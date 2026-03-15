@@ -6,265 +6,416 @@
 <title>Капибара Клуб</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
   :root {
-    --bg:   var(--tg-theme-bg-color,   #1a1a2e);
-    --bg2:  var(--tg-theme-secondary-bg-color, #16213e);
-    --text: var(--tg-theme-text-color, #eee);
-    --hint: var(--tg-theme-hint-color, #888);
-    --btn:  var(--tg-theme-button-color, #7c5cbf);
-    --btnT: var(--tg-theme-button-text-color, #fff);
-    --gold: #f0a500;
-    --teal: #4ecdc4;
-    --red:  #ff6b6b;
-    --grn:  #4caf50;
+    --gold:  #f0a500;
+    --gold2: #ffd166;
+    --teal:  #4ecdc4;
+    --red:   #ff6b6b;
+    --grn:   #6bcb77;
+    --btn:   #a78bfa;
+    --btn2:  #7c5cbf;
+    --btnT:  #fff;
+    /* Telegram override */
+    --tg-bg:   var(--tg-theme-bg-color,   #0f0f1a);
+    --tg-bg2:  var(--tg-theme-secondary-bg-color, #1a1a2e);
+    --tg-text: var(--tg-theme-text-color, #f0eeff);
+    --tg-hint: var(--tg-theme-hint-color, #8880aa);
   }
+
   body {
-    background:var(--bg); color:var(--text);
-    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-    height:100vh; display:flex; flex-direction:column;
-    overflow:hidden; user-select:none;
+    background: var(--tg-bg);
+    color: var(--tg-text);
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    user-select: none;
   }
 
-  /* HEADER */
+  /* ── АНИМИРОВАННЫЙ ФОН ── */
+  .bg-canvas {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+  }
+  .bg-blob {
+    position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.12;
+    animation: blobFloat 12s ease-in-out infinite;
+  }
+  .bg-blob:nth-child(1) { width:280px; height:280px; background:#a78bfa; top:-60px; left:-60px; animation-delay:0s; }
+  .bg-blob:nth-child(2) { width:220px; height:220px; background:#4ecdc4; top:30%; right:-40px; animation-delay:4s; }
+  .bg-blob:nth-child(3) { width:200px; height:200px; background:#f0a500; bottom:-40px; left:20%; animation-delay:8s; }
+  @keyframes blobFloat {
+    0%,100%{ transform:translate(0,0) scale(1); }
+    33%    { transform:translate(15px,-20px) scale(1.05); }
+    66%    { transform:translate(-10px,15px) scale(0.95); }
+  }
+
+  /* ── HEADER ── */
   .header {
-    display:flex; justify-content:space-between; align-items:center;
-    padding:8px 12px; background:var(--bg2);
-    border-bottom:1px solid rgba(255,255,255,0.07); flex-shrink:0; gap:6px;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 14px;
+    background: rgba(26,26,46,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(167,139,250,0.15);
+    flex-shrink: 0; gap: 6px; position: relative; z-index: 10;
   }
-  .coins-disp { display:flex; align-items:center; gap:5px; font-size:18px; font-weight:700; color:var(--gold); flex-shrink:0; }
-  .hdr-right  { display:flex; align-items:center; gap:6px; flex-shrink:0; }
-  .energy-disp { font-size:12px; color:var(--teal); }
+  .coins-disp {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 20px; font-weight: 800; color: var(--gold2);
+    text-shadow: 0 0 20px rgba(240,165,0,0.4);
+  }
+  .hdr-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+  .energy-disp { font-size: 12px; color: var(--teal); font-weight: 600; }
   .hdr-btn {
-    border:none; border-radius:10px; padding:4px 9px;
-    font-size:12px; cursor:pointer; display:flex; align-items:center; gap:3px; flex-shrink:0;
+    border: none; border-radius: 10px; padding: 5px 10px;
+    font-size: 12px; font-weight: 700; cursor: pointer;
+    display: flex; align-items: center; gap: 3px; flex-shrink: 0;
+    font-family: inherit;
   }
-  .hdr-btn-daily { background:rgba(240,165,0,0.15); border:1px solid rgba(240,165,0,0.4); color:var(--gold); }
-  .hdr-btn-help  { background:rgba(255,255,255,0.1); color:var(--text); border-radius:50%; width:26px; height:26px; justify-content:center; font-size:14px; }
+  .hdr-btn-daily {
+    background: rgba(240,165,0,0.12);
+    border: 1px solid rgba(240,165,0,0.35);
+    color: var(--gold2);
+  }
+  .hdr-btn-help {
+    background: rgba(167,139,250,0.12);
+    border: 1px solid rgba(167,139,250,0.25);
+    color: var(--btn);
+    border-radius: 50%; width: 28px; height: 28px;
+    justify-content: center; font-size: 14px;
+  }
 
-  /* SCREENS */
-  .screen { display:none; flex:1; flex-direction:column; overflow-y:auto; }
-  .screen.active { display:flex; }
+  /* ── SCREENS ── */
+  .screen { display: none; flex: 1; flex-direction: column; overflow-y: auto; position: relative; z-index: 1; }
+  .screen.active { display: flex; }
 
-  /* TAP ZONE */
+  /* ── TAP ZONE ── */
   .tap-zone {
-    flex:1; display:flex; flex-direction:column;
-    align-items:center; justify-content:center;
-    gap:11px; padding:14px; position:relative; overflow:hidden;
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 12px; padding: 16px; position: relative; overflow: hidden;
   }
-  .stage-lbl { font-size:12px; color:var(--hint); letter-spacing:1.5px; text-transform:uppercase; }
+
+  .stage-lbl {
+    font-size: 11px; font-weight: 700; color: var(--btn);
+    letter-spacing: 2px; text-transform: uppercase;
+    background: rgba(167,139,250,0.1);
+    border: 1px solid rgba(167,139,250,0.2);
+    padding: 4px 12px; border-radius: 20px;
+  }
 
   /* КАПИБАРА */
-  .capy-wrap { position:relative; width:160px; height:160px; display:flex; align-items:center; justify-content:center; }
-  .capy-glow {
-    position:absolute; inset:0; border-radius:50%;
-    background:radial-gradient(circle,rgba(240,165,0,0.18) 0%,rgba(240,165,0,0) 70%);
-    animation:glowPulse 2.5s ease-in-out infinite;
+  .capy-wrap {
+    position: relative; width: 170px; height: 170px;
+    display: flex; align-items: center; justify-content: center;
   }
-  @keyframes glowPulse { 0%,100%{transform:scale(1);opacity:.7} 50%{transform:scale(1.15);opacity:1} }
+  .capy-ring {
+    position: absolute; inset: -8px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    background: linear-gradient(135deg, rgba(167,139,250,0.4), rgba(78,205,196,0.4)) border-box;
+    -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: destination-out;
+    mask-composite: exclude;
+    animation: ringRotate 4s linear infinite;
+  }
+  @keyframes ringRotate { to { transform: rotate(360deg); } }
+  .capy-glow {
+    position: absolute; inset: 0; border-radius: 50%;
+    background: radial-gradient(circle, rgba(167,139,250,0.2) 0%, transparent 70%);
+    animation: glowPulse 2.5s ease-in-out infinite;
+  }
+  @keyframes glowPulse { 0%,100%{ transform:scale(1); opacity:.7; } 50%{ transform:scale(1.2); opacity:1; } }
   .capy-card {
-    width:148px; height:148px; cursor:pointer; position:relative; z-index:1;
-    animation:floatIdle 3s ease-in-out infinite;
+    width: 148px; height: 148px; cursor: pointer;
+    position: relative; z-index: 1;
+    animation: floatIdle 3s ease-in-out infinite;
   }
   @keyframes floatIdle {
-    0%,100%{transform:translateY(0) rotate(0deg)}
-    33%{transform:translateY(-6px) rotate(.5deg)}
-    66%{transform:translateY(-3px) rotate(-.5deg)}
+    0%,100%{ transform:translateY(0) rotate(0deg); }
+    33%    { transform:translateY(-7px) rotate(.6deg); }
+    66%    { transform:translateY(-3px) rotate(-.5deg); }
   }
   .capy-card img {
-    width:100%; height:100%; object-fit:contain;
-    transition:filter .5s, opacity .5s; pointer-events:none; display:block;
+    width: 100%; height: 100%; object-fit: contain;
+    transition: filter .5s, opacity .5s; pointer-events: none; display: block;
   }
-  /* Скины */
-  .skin-0 { filter:none; }
-  .skin-1 { filter:sepia(.3) saturate(1.4) hue-rotate(10deg); }
-  .skin-2 { filter:sepia(.5) saturate(1.8) hue-rotate(25deg) brightness(1.1); }
-  .skin-3 { filter:hue-rotate(220deg) saturate(1.6) brightness(1.1); }
-  .skin-4 { animation:rainbow 3s linear infinite !important; }
+  .skin-0 { filter: none; }
+  .skin-1 { filter: sepia(.3) saturate(1.4) hue-rotate(10deg); }
+  .skin-2 { filter: sepia(.5) saturate(1.8) hue-rotate(25deg) brightness(1.1); }
+  .skin-3 { filter: hue-rotate(220deg) saturate(1.6) brightness(1.1); }
+  .skin-4 { animation: rainbow 3s linear infinite !important; }
   @keyframes rainbow {
-    0%  {filter:hue-rotate(0deg)   saturate(2) brightness(1.2)}
-    25% {filter:hue-rotate(90deg)  saturate(2) brightness(1.2)}
-    50% {filter:hue-rotate(180deg) saturate(2) brightness(1.2)}
-    75% {filter:hue-rotate(270deg) saturate(2) brightness(1.2)}
-    100%{filter:hue-rotate(360deg) saturate(2) brightness(1.2)}
+    0%  { filter: hue-rotate(0deg)   saturate(2) brightness(1.2); }
+    25% { filter: hue-rotate(90deg)  saturate(2) brightness(1.2); }
+    50% { filter: hue-rotate(180deg) saturate(2) brightness(1.2); }
+    75% { filter: hue-rotate(270deg) saturate(2) brightness(1.2); }
+    100%{ filter: hue-rotate(360deg) saturate(2) brightness(1.2); }
   }
-  .capy-card img.hungry  { filter:grayscale(60%) brightness(.75) saturate(.5)!important; }
-  @keyframes hungerPulse { 0%,100%{opacity:1} 50%{opacity:.5} }
-  .capy-card img.starving { filter:grayscale(90%) brightness(.6)!important; animation:hungerPulse 1.2s infinite; }
-  .capy-img-inner { transition:transform .07s; display:flex; }
+  .capy-card img.hungry  { filter: grayscale(60%) brightness(.75) saturate(.5) !important; }
+  @keyframes hungerPulse { 0%,100%{ opacity:1; } 50%{ opacity:.5; } }
+  .capy-card img.starving { filter: grayscale(90%) brightness(.6) !important; animation: hungerPulse 1.2s infinite; }
   @keyframes tapBounce {
-    0%  {transform:scale(1) rotate(0deg)}
-    20% {transform:scale(.82) rotate(-2deg)}
-    50% {transform:scale(1.08) rotate(1.5deg)}
-    70% {transform:scale(.97) rotate(-.5deg)}
-    100%{transform:scale(1) rotate(0deg)}
+    0%  { transform: scale(1) rotate(0deg); }
+    20% { transform: scale(.82) rotate(-2deg); }
+    50% { transform: scale(1.1) rotate(1.5deg); }
+    70% { transform: scale(.97) rotate(-.5deg); }
+    100%{ transform: scale(1) rotate(0deg); }
   }
-  .capy-card.tapped { animation:tapBounce .4s ease-out,floatIdle 3s ease-in-out infinite .4s !important; }
+  .capy-card.tapped { animation: tapBounce .4s ease-out, floatIdle 3s ease-in-out infinite .4s !important; }
 
   /* ИСКРЫ */
   .spark { position:fixed; pointer-events:none; z-index:998; width:8px; height:8px; border-radius:50%; animation:sparkFly .6s ease-out forwards; }
-  @keyframes sparkFly { 0%{transform:translate(0,0) scale(1);opacity:1} 100%{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0} }
-
-  /* FLOAT */
-  .fl { position:fixed; font-size:21px; font-weight:700; pointer-events:none; z-index:999; animation:fup .9s ease-out forwards; }
-  @keyframes fup { 0%{opacity:1;transform:translateY(0) scale(1.1)} 100%{opacity:0;transform:translateY(-90px) scale(.6)} }
+  @keyframes sparkFly { 0%{ transform:translate(0,0) scale(1); opacity:1; } 100%{ transform:translate(var(--dx),var(--dy)) scale(0); opacity:0; } }
+  .fl { position:fixed; font-size:22px; font-weight:800; pointer-events:none; z-index:999; animation:fup .9s ease-out forwards; text-shadow:0 2px 8px rgba(0,0,0,.5); }
+  @keyframes fup { 0%{ opacity:1; transform:translateY(0) scale(1.1); } 100%{ opacity:0; transform:translateY(-90px) scale(.6); } }
 
   /* HUNGER ALERT */
   .hunger-alert {
-    background:rgba(255,107,107,.15); border:1px solid rgba(255,107,107,.4);
-    border-radius:10px; padding:6px 12px; font-size:12px; color:var(--red);
-    width:100%; max-width:300px; text-align:center; display:none;
+    background: rgba(255,107,107,.12);
+    border: 1px solid rgba(255,107,107,.35);
+    border-radius: 12px; padding: 7px 14px;
+    font-size: 12px; font-weight: 600; color: var(--red);
+    width: 100%; max-width: 300px; text-align: center; display: none;
   }
 
   /* BARS */
-  .bars-wrap { width:100%; max-width:300px; padding:0 4px; display:flex; flex-direction:column; gap:7px; }
-  .bar-row { display:flex; justify-content:space-between; font-size:11px; color:var(--hint); margin-bottom:3px; }
-  .bar-bg  { height:7px; background:rgba(255,255,255,.09); border-radius:4px; overflow:hidden; }
-  .bar-fill { height:100%; border-radius:4px; transition:width .35s; }
-  .bar-fill-energy { background:var(--teal); }
-  .bar-fill-hunger { background:#f0a500; transition:width .35s,background .5s; }
-  .bar-fill-hunger.low  { background:#ff9500; }
-  .bar-fill-hunger.crit { background:var(--red); }
+  .bars-wrap { width: 100%; max-width: 300px; padding: 0 4px; display: flex; flex-direction: column; gap: 9px; }
+  .bar-row { display: flex; justify-content: space-between; font-size: 11px; font-weight: 600; color: var(--tg-hint); margin-bottom: 4px; }
+  .bar-bg { height: 8px; background: rgba(255,255,255,.07); border-radius: 6px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 6px; transition: width .35s; }
+  .bar-fill-energy { background: linear-gradient(90deg, #4ecdc4, #45b7d1); }
+  .bar-fill-hunger { background: linear-gradient(90deg, #f0a500, #ffd166); transition: width .35s, background .5s; }
+  .bar-fill-hunger.low  { background: linear-gradient(90deg, #ff9500, #ffb347); }
+  .bar-fill-hunger.crit { background: linear-gradient(90deg, #ff6b6b, #ff8e53); }
 
-  .stats-row { display:flex; gap:20px; font-size:13px; color:var(--hint); }
-  .stats-row b { color:var(--text); font-weight:600; }
+  /* STATS */
+  .stats-row { display: flex; gap: 16px; }
+  .stat-pill {
+    background: rgba(167,139,250,.08);
+    border: 1px solid rgba(167,139,250,.15);
+    border-radius: 20px; padding: 5px 12px;
+    font-size: 13px; font-weight: 700; color: var(--tg-hint);
+  }
+  .stat-pill b { color: var(--tg-text); }
 
   .evolve-banner {
-    background:linear-gradient(135deg,#f0a500,#ff6b6b); border-radius:12px; padding:9px 14px;
-    font-size:13px; font-weight:600; color:#fff; width:100%; max-width:300px; text-align:center;
-    animation:pulse 1.8s infinite; display:none;
+    background: linear-gradient(135deg, #a78bfa, #4ecdc4);
+    border-radius: 14px; padding: 10px 16px;
+    font-size: 13px; font-weight: 800; color: #fff;
+    width: 100%; max-width: 300px; text-align: center;
+    box-shadow: 0 4px 20px rgba(167,139,250,.4);
+    animation: pulse 1.8s infinite; display: none;
   }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.75} }
+  @keyframes pulse { 0%,100%{ opacity:1; } 50%{ opacity:.75; } }
 
   .ad-btn {
-    background:rgba(255,255,255,.08); color:var(--text);
-    border:1px solid rgba(255,255,255,.15); border-radius:10px;
-    padding:8px 16px; font-size:13px; cursor:pointer; margin-top:2px;
+    background: rgba(255,255,255,.06);
+    color: var(--tg-hint);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 12px; padding: 9px 18px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer; font-family: inherit;
   }
 
-  /* BOTTOM NAV */
-  .bnav { display:flex; background:var(--bg2); border-top:1px solid rgba(255,255,255,.07); flex-shrink:0; }
+  /* ── BOTTOM NAV ── */
+  .bnav {
+    display: flex;
+    background: rgba(26,26,46,0.92);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(167,139,250,.12);
+    flex-shrink: 0; position: relative; z-index: 10;
+  }
   .nbtn {
-    flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
-    gap:2px; padding:8px 4px; background:none; border:none;
-    color:var(--hint); font-size:10px; cursor:pointer; transition:color .15s; position:relative;
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 2px; padding: 9px 4px; background: none; border: none;
+    color: var(--tg-hint); font-size: 10px; font-weight: 700;
+    cursor: pointer; transition: color .15s; position: relative;
+    font-family: inherit;
   }
-  .nbtn .ni { font-size:20px; }
-  .nbtn.active { color:var(--btn); }
+  .nbtn .ni { font-size: 20px; }
+  .nbtn.active { color: var(--btn); }
+  .nbtn.active .ni { filter: drop-shadow(0 0 6px rgba(167,139,250,.6)); }
   .nbtn .badge {
-    position:absolute; top:5px; right:calc(50% - 16px);
-    background:var(--red); color:#fff; border-radius:8px;
-    font-size:9px; font-weight:700; padding:1px 5px; min-width:14px; text-align:center;
+    position: absolute; top: 5px; right: calc(50% - 16px);
+    background: var(--red); color: #fff; border-radius: 8px;
+    font-size: 9px; font-weight: 800; padding: 1px 5px;
   }
 
-  /* SCREEN TITLE */
-  .screen-title { padding:13px 16px; font-size:17px; font-weight:700; border-bottom:1px solid rgba(255,255,255,.07); flex-shrink:0; }
+  /* ── SCREEN TITLE ── */
+  .screen-title {
+    padding: 14px 16px; font-size: 18px; font-weight: 800;
+    border-bottom: 1px solid rgba(167,139,250,.1);
+    flex-shrink: 0;
+    background: rgba(167,139,250,.04);
+  }
 
-  /* SHOP */
-  .shop-list { padding:10px; display:flex; flex-direction:column; gap:9px; }
+  /* ── CARDS (общий стиль) ── */
+  .card {
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(167,139,250,.12);
+    border-radius: 16px;
+  }
+  .card:hover { border-color: rgba(167,139,250,.25); }
+
+  /* ── SHOP ── */
+  .shop-list { padding: 10px; display: flex; flex-direction: column; gap: 9px; }
   .upg-card {
-    background:var(--bg2); border-radius:13px; padding:12px;
-    display:flex; align-items:center; gap:12px; border:1px solid rgba(255,255,255,.05);
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(167,139,250,.12);
+    border-radius: 16px; padding: 13px;
+    display: flex; align-items: center; gap: 12px;
   }
-  .upg-ico  { font-size:32px; line-height:1; flex-shrink:0; }
-  .upg-info { flex:1; min-width:0; }
-  .upg-name { font-size:14px; font-weight:600; }
-  .upg-desc { font-size:12px; color:var(--hint); margin-top:2px; }
-  .upg-lvl  { font-size:11px; color:var(--btn); margin-top:3px; }
-  .upg-buy  { display:flex; flex-direction:column; align-items:center; gap:3px; flex-shrink:0; }
-  .buy-btn  { background:var(--btn); color:var(--btnT); border:none; border-radius:9px; padding:7px 12px; font-size:13px; font-weight:600; cursor:pointer; min-width:76px; text-align:center; }
-  .buy-btn:disabled { opacity:.3; cursor:default; }
-  .buy-btn.mx { background:rgba(255,255,255,.1); color:var(--hint); }
-  .buy-cost { font-size:11px; color:var(--gold); }
+  .upg-ico  { font-size: 32px; line-height: 1; flex-shrink: 0; }
+  .upg-info { flex: 1; min-width: 0; }
+  .upg-name { font-size: 14px; font-weight: 700; }
+  .upg-desc { font-size: 12px; color: var(--tg-hint); margin-top: 2px; font-weight: 600; }
+  .upg-lvl  { font-size: 11px; color: var(--btn); margin-top: 3px; font-weight: 700; }
+  .upg-buy  { display: flex; flex-direction: column; align-items: center; gap: 3px; flex-shrink: 0; }
+  .buy-btn {
+    background: linear-gradient(135deg, var(--btn), var(--btn2));
+    color: #fff; border: none; border-radius: 10px;
+    padding: 7px 12px; font-size: 13px; font-weight: 800;
+    cursor: pointer; min-width: 76px; text-align: center;
+    font-family: inherit;
+    box-shadow: 0 3px 12px rgba(124,92,191,.35);
+  }
+  .buy-btn:disabled { opacity: .3; cursor: default; box-shadow: none; }
+  .buy-btn.mx { background: rgba(255,255,255,.08); color: var(--tg-hint); box-shadow: none; }
+  .buy-cost { font-size: 11px; color: var(--gold); font-weight: 700; }
 
-  /* STARS */
-  .stars-grid { padding:10px; display:flex; flex-direction:column; gap:9px; }
+  /* ── STARS ── */
+  .stars-grid { padding: 10px; display: flex; flex-direction: column; gap: 9px; }
   .star-item {
-    background:var(--bg2); border-radius:13px; padding:13px 14px;
-    display:flex; align-items:center; justify-content:space-between;
-    border:1px solid rgba(255,255,255,.05);
+    background: rgba(255,215,0,.05);
+    border: 1px solid rgba(255,215,0,.15);
+    border-radius: 16px; padding: 13px 14px;
+    display: flex; align-items: center; justify-content: space-between;
   }
-  .star-info h4 { font-size:14px; font-weight:600; margin-bottom:3px; }
-  .star-info p  { font-size:12px; color:var(--hint); }
-  .star-btn { background:#ffd700; color:#000; border:none; border-radius:9px; padding:8px 14px; font-size:13px; font-weight:700; cursor:pointer; }
+  .star-info h4 { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .star-info p  { font-size: 12px; color: var(--tg-hint); font-weight: 600; }
+  .star-btn {
+    background: linear-gradient(135deg, #ffd700, #ffaa00);
+    color: #000; border: none; border-radius: 10px;
+    padding: 8px 14px; font-size: 13px; font-weight: 800;
+    cursor: pointer; font-family: inherit;
+    box-shadow: 0 3px 12px rgba(255,215,0,.35);
+  }
 
-  /* QUESTS */
-  .quest-list { padding:10px; display:flex; flex-direction:column; gap:9px; }
+  /* ── QUESTS ── */
+  .quest-list { padding: 10px; display: flex; flex-direction: column; gap: 9px; }
   .quest-card {
-    background:var(--bg2); border-radius:13px; padding:13px;
-    border:1px solid rgba(255,255,255,.05); display:flex; flex-direction:column; gap:8px;
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(167,139,250,.12);
+    border-radius: 16px; padding: 13px;
+    display: flex; flex-direction: column; gap: 8px;
   }
-  .quest-card.done { border-color:rgba(76,175,80,.4); background:rgba(76,175,80,.05); }
-  .quest-card.claimed { opacity:.45; }
-  .quest-top { display:flex; align-items:center; gap:10px; }
-  .quest-ico { font-size:28px; flex-shrink:0; }
-  .quest-info { flex:1; }
-  .quest-name { font-size:14px; font-weight:600; }
-  .quest-desc { font-size:12px; color:var(--hint); margin-top:2px; }
-  .quest-reward { font-size:12px; color:var(--gold); margin-top:3px; font-weight:600; }
-  .quest-bar-bg { height:6px; background:rgba(255,255,255,.09); border-radius:3px; overflow:hidden; }
-  .quest-bar-fill { height:100%; background:var(--btn); border-radius:3px; transition:width .4s; }
-  .quest-progress { display:flex; justify-content:space-between; font-size:11px; color:var(--hint); margin-top:3px; }
+  .quest-card.done    { border-color: rgba(107,203,119,.35); background: rgba(107,203,119,.04); }
+  .quest-card.claimed { opacity: .4; }
+  .quest-top  { display: flex; align-items: center; gap: 10px; }
+  .quest-ico  { font-size: 28px; flex-shrink: 0; }
+  .quest-info { flex: 1; }
+  .quest-name   { font-size: 14px; font-weight: 700; }
+  .quest-desc   { font-size: 12px; color: var(--tg-hint); margin-top: 2px; font-weight: 600; }
+  .quest-reward { font-size: 12px; color: var(--gold); margin-top: 3px; font-weight: 700; }
+  .quest-bar-bg   { height: 6px; background: rgba(255,255,255,.07); border-radius: 4px; overflow: hidden; }
+  .quest-bar-fill { height: 100%; background: linear-gradient(90deg, var(--btn), var(--teal)); border-radius: 4px; transition: width .4s; }
+  .quest-progress { display: flex; justify-content: space-between; font-size: 11px; font-weight: 600; color: var(--tg-hint); margin-top: 3px; }
   .quest-claim-btn {
-    background:var(--grn); color:#fff; border:none; border-radius:9px;
-    padding:8px; font-size:13px; font-weight:600; cursor:pointer; width:100%;
+    background: linear-gradient(135deg, var(--grn), #45b75a);
+    color: #fff; border: none; border-radius: 10px;
+    padding: 9px; font-size: 13px; font-weight: 800;
+    cursor: pointer; width: 100%; font-family: inherit;
+    box-shadow: 0 3px 12px rgba(107,203,119,.35);
   }
-  .quest-done-lbl { text-align:center; font-size:12px; color:var(--grn); padding:4px 0; }
+  .quest-done-lbl { text-align: center; font-size: 12px; font-weight: 700; color: var(--grn); padding: 4px 0; }
 
-  /* LEADERBOARD */
-  .lb-wrap { padding:10px; }
+  /* ── LEADERBOARD ── */
+  .lb-wrap { padding: 10px; }
   .lb-item {
-    background:var(--bg2); border-radius:11px; padding:11px 14px;
-    display:flex; align-items:center; gap:11px; margin-bottom:8px;
-    border:1px solid rgba(255,255,255,.04);
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(167,139,250,.1);
+    border-radius: 14px; padding: 11px 14px;
+    display: flex; align-items: center; gap: 11px; margin-bottom: 8px;
   }
-  .lb-item.me { border-color:var(--btn); }
-  .lb-rank { font-size:17px; font-weight:700; min-width:28px; }
-  .lb-name { flex:1; font-size:13px; }
-  .lb-score { font-size:13px; color:var(--gold); font-weight:600; }
+  .lb-item.me { border-color: rgba(167,139,250,.4); background: rgba(167,139,250,.08); }
+  .lb-rank  { font-size: 18px; font-weight: 800; min-width: 28px; }
+  .lb-name  { flex: 1; font-size: 13px; font-weight: 700; }
+  .lb-score { font-size: 13px; color: var(--gold); font-weight: 800; }
 
-  /* FRIENDS */
-  .friends-wrap { padding:14px; display:flex; flex-direction:column; gap:10px; }
-  .f-box { background:var(--bg2); border-radius:13px; padding:15px; text-align:center; border:1px solid rgba(255,255,255,.05); }
-  .f-box h3 { font-size:15px; font-weight:600; margin-bottom:5px; }
-  .f-box p  { font-size:12px; color:var(--hint); }
-  .ref-count { font-size:34px; font-weight:700; color:var(--gold); margin:6px 0 2px; }
-  .ref-lnk { font-size:11px; color:var(--text); word-break:break-all; margin-top:8px; }
-  .f-btn { width:100%; border:none; border-radius:11px; padding:13px; font-size:14px; font-weight:600; cursor:pointer; }
-  .f-btn-main  { background:var(--btn); color:var(--btnT); }
-  .f-btn-ghost { background:rgba(255,255,255,.08); color:var(--text); margin-top:6px; }
+  /* ── FRIENDS ── */
+  .friends-wrap { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .f-box {
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(167,139,250,.12);
+    border-radius: 16px; padding: 16px; text-align: center;
+  }
+  .f-box h3 { font-size: 15px; font-weight: 800; margin-bottom: 5px; }
+  .f-box p  { font-size: 12px; color: var(--tg-hint); font-weight: 600; }
+  .ref-count { font-size: 36px; font-weight: 800; color: var(--gold2); margin: 6px 0 2px; text-shadow: 0 0 20px rgba(240,165,0,.4); }
+  .ref-lnk { font-size: 11px; color: var(--tg-text); word-break: break-all; margin-top: 8px; opacity: .8; }
+  .f-btn {
+    width: 100%; border: none; border-radius: 12px; padding: 13px;
+    font-size: 14px; font-weight: 800; cursor: pointer; font-family: inherit;
+  }
+  .f-btn-main  { background: linear-gradient(135deg, var(--btn), var(--btn2)); color: #fff; box-shadow: 0 4px 16px rgba(124,92,191,.35); }
+  .f-btn-ghost { background: rgba(255,255,255,.07); color: var(--tg-text); margin-top: 6px; border: 1px solid rgba(255,255,255,.1); }
 
-  /* MODALS */
+  /* ── MODALS ── */
   .modal-ov {
-    display:none; position:fixed; inset:0;
-    background:rgba(0,0,0,.75); z-index:200;
-    align-items:center; justify-content:center; padding:20px;
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.8); z-index: 200;
+    align-items: center; justify-content: center; padding: 20px;
+    backdrop-filter: blur(4px);
   }
-  .modal-ov.show { display:flex; }
-  .modal-box { background:var(--bg2); border-radius:18px; padding:22px; text-align:center; max-width:310px; width:100%; }
-  .modal-box h2 { font-size:18px; margin-bottom:7px; }
-  .modal-box p  { font-size:13px; color:var(--hint); margin-bottom:12px; }
-  .modal-amt { font-size:34px; font-weight:700; color:var(--gold); margin-bottom:16px; }
-  .modal-btn { background:var(--btn); color:var(--btnT); border:none; border-radius:11px; padding:13px 28px; font-size:14px; font-weight:600; cursor:pointer; }
-  .modal-btn-red { background:var(--red); }
-  .modal-close-lnk { display:block; margin-top:10px; background:none; border:none; color:var(--hint); font-size:13px; cursor:pointer; width:100%; padding:5px; }
+  .modal-ov.show { display: flex; }
+  .modal-box {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    border: 1px solid rgba(167,139,250,.2);
+    border-radius: 22px; padding: 24px;
+    text-align: center; max-width: 310px; width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,.5);
+  }
+  .modal-box h2 { font-size: 19px; font-weight: 800; margin-bottom: 8px; }
+  .modal-box p  { font-size: 13px; color: var(--tg-hint); margin-bottom: 14px; font-weight: 600; }
+  .modal-amt { font-size: 36px; font-weight: 800; color: var(--gold2); margin-bottom: 18px; text-shadow: 0 0 20px rgba(240,165,0,.4); }
+  .modal-btn {
+    background: linear-gradient(135deg, var(--btn), var(--btn2));
+    color: #fff; border: none; border-radius: 12px;
+    padding: 13px 28px; font-size: 14px; font-weight: 800;
+    cursor: pointer; font-family: inherit;
+    box-shadow: 0 4px 16px rgba(124,92,191,.4);
+  }
+  .modal-btn-red { background: linear-gradient(135deg, #ff6b6b, #ee5a24); box-shadow: 0 4px 16px rgba(255,107,107,.4); }
+  .modal-close-lnk { display: block; margin-top: 10px; background: none; border: none; color: var(--tg-hint); font-size: 13px; cursor: pointer; width: 100%; padding: 5px; font-family: inherit; font-weight: 600; }
 </style>
 </head>
 <body>
+
+<!-- ANIMATED BG -->
+<div class="bg-canvas">
+  <div class="bg-blob"></div>
+  <div class="bg-blob"></div>
+  <div class="bg-blob"></div>
+</div>
 
 <!-- HELP MODAL -->
 <div class="modal-ov" id="helpModal">
   <div class="modal-box">
     <h2>🦫 Как играть</h2>
-    <div style="text-align:left;font-size:13px;color:var(--hint);line-height:1.9;margin:10px 0 16px">
-      <div>🥕 <b style="color:var(--text)">Тапай на Васю</b> — получай морковки</div>
-      <div>⚡ <b style="color:var(--text)">Аппетит</b> — тратится на тапы, восстанавливается сам</div>
-      <div>🍖 <b style="color:var(--text)">Сытость</b> — падает если не играть. Голодный Вася даёт меньше морковок!</div>
-      <div>🛒 <b style="color:var(--text)">Магазин</b> — покупай улучшения за морковки</div>
-      <div>📋 <b style="color:var(--text)">Задания</b> — выполняй квесты, получай бонусы</div>
-      <div>👥 <b style="color:var(--text)">Друзья</b> — +500 🥕 за каждого приглашённого</div>
-      <div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.1)">
-        🏆 <b style="color:var(--text)">Цель:</b> вырасти от Васятки до Легенды (5 000 000 🥕)
+    <div style="text-align:left;font-size:13px;color:var(--tg-hint);line-height:1.9;margin:10px 0 16px;font-weight:600">
+      <div>🥕 <b style="color:var(--tg-text)">Тапай на Васю</b> — получай морковки</div>
+      <div>⚡ <b style="color:var(--tg-text)">Аппетит</b> — тратится на тапы, восстанавливается сам</div>
+      <div>🍖 <b style="color:var(--tg-text)">Сытость</b> — падает если не играть</div>
+      <div>🛒 <b style="color:var(--tg-text)">Магазин</b> — покупай улучшения за морковки</div>
+      <div>📋 <b style="color:var(--tg-text)">Задания</b> — выполняй квесты, получай бонусы</div>
+      <div>👥 <b style="color:var(--tg-text)">Друзья</b> — +500 🥕 за каждого приглашённого</div>
+      <div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(167,139,250,.15)">
+        🏆 <b style="color:var(--tg-text)">Цель:</b> вырасти от Васятки до Легенды (5M 🥕)
       </div>
     </div>
     <button class="modal-btn" onclick="document.getElementById('helpModal').classList.remove('show')">Понял!</button>
@@ -287,7 +438,7 @@
     <div style="font-size:56px;margin-bottom:8px">😢</div>
     <h2>Вася голодает!</h2>
     <p>Сытость упала критически. Вася даёт вдвое меньше морковок!</p>
-    <div style="margin:12px 0 16px;font-size:13px;color:var(--hint)">
+    <div style="margin:12px 0 16px;font-size:13px;color:var(--tg-hint);font-weight:600">
       Тапай чтобы покормить.<br>Или смотри рекламу — +50% сытости сразу.
     </div>
     <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
@@ -323,17 +474,16 @@
 <!-- SCREEN: TAP -->
 <div class="screen active" id="sMain">
   <div class="tap-zone">
-    <div class="stage-lbl" id="stageLbl">🦫 Стадия: Васятка</div>
+    <div class="stage-lbl" id="stageLbl">🦫 СТАДИЯ: ВАСЯТКА</div>
     <div class="capy-wrap">
+      <div class="capy-ring"></div>
       <div class="capy-glow" id="capyGlow"></div>
       <div class="capy-card" id="capyCard" onclick="onTap(event)">
-        <div class="capy-img-inner">
-          <img id="capyImg" src="https://i.imgur.com/U4s9OBq.png" alt="Вася" draggable="false">
-        </div>
+        <img id="capyImg" src="https://i.imgur.com/U4s9OBq.png" alt="Вася" draggable="false">
       </div>
     </div>
     <div class="hunger-alert" id="hungerAlert">😢 Вася голодает! Тапай чтобы покормить!</div>
-    <div class="tap-hint" id="tapHint">Нажимай на Васю, чтобы кормить!</div>
+    <div class="tap-hint" id="tapHint" style="font-size:13px;font-weight:600;color:var(--tg-hint)">Нажимай на Васю, чтобы кормить!</div>
     <div class="bars-wrap">
       <div>
         <div class="bar-row"><span>⚡ Аппетит</span><span id="eTxt">500/500</span></div>
@@ -345,8 +495,8 @@
       </div>
     </div>
     <div class="stats-row">
-      <div>+<b id="tpDisp">1</b> за тап</div>
-      <div>+<b id="psDisp">0</b>/сек</div>
+      <div class="stat-pill">+<b id="tpDisp">1</b> за тап</div>
+      <div class="stat-pill">+<b id="psDisp">0</b>/сек</div>
     </div>
     <div class="evolve-banner" id="evBanner"></div>
     <button class="ad-btn" onclick="watchAd()">📺 Смотреть рекламу (+200 ⚡)</button>
@@ -383,7 +533,7 @@
 <!-- SCREEN: LEADERBOARD -->
 <div class="screen" id="sBoard">
   <div class="screen-title">🏆 Рейтинг</div>
-  <div class="lb-wrap" id="lbWrap"><p style="padding:14px;color:var(--hint)">Загрузка...</p></div>
+  <div class="lb-wrap" id="lbWrap"><p style="padding:14px;color:var(--tg-hint);font-weight:600">Загрузка...</p></div>
 </div>
 
 <!-- SCREEN: FRIENDS -->
@@ -394,7 +544,7 @@
       <h3>Пригласи друзей 🦫</h3>
       <p>Ты получишь <b>500 🥕</b> за каждого друга</p>
       <div class="ref-count" id="refCnt">0</div>
-      <div style="font-size:12px;color:var(--hint)">друзей приглашено</div>
+      <div style="font-size:12px;color:var(--tg-hint);font-weight:600">друзей приглашено</div>
     </div>
     <div class="f-box">
       <h3>Твоя ссылка</h3>
@@ -402,107 +552,85 @@
     </div>
     <button class="f-btn f-btn-main"  onclick="shareGame()">📤 Поделиться</button>
     <button class="f-btn f-btn-ghost" onclick="copyRef()">📋 Скопировать ссылку</button>
-    <div class="f-box" style="margin-top:4px">
-    <h3>🔔 Уведомления</h3>
-    <p>Бот напомнит когда Вася проголодается</p>
-    <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-top:10px">
-      <span style="font-size:13px;color:var(--hint)" id="notifLabel">Загрузка...</span>
-      <label style="position:relative;width:44px;height:24px;cursor:pointer">
-        <input type="checkbox" id="notifToggle" onchange="toggleNotif(this.checked)"
-          style="position:absolute;opacity:0;width:100%;height:100%;cursor:pointer;margin:0">
-        <span id="notifTrack" style="
-          display:block;width:44px;height:24px;border-radius:12px;
-          background:rgba(255,255,255,0.15);transition:background .2s;"></span>
-        <span id="notifThumb" style="
-          position:absolute;top:2px;left:2px;width:20px;height:20px;
-          background:#fff;border-radius:50%;transition:transform .2s;pointer-events:none;"></span>
-      </label>
+    <div class="f-box">
+      <h3>🔔 Уведомления</h3>
+      <p>Бот напомнит когда Вася проголодается</p>
+      <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-top:10px">
+        <span style="font-size:13px;font-weight:600;color:var(--tg-hint)" id="notifLabel">Загрузка...</span>
+        <label style="position:relative;width:44px;height:24px;cursor:pointer">
+          <input type="checkbox" id="notifToggle" onchange="toggleNotif(this.checked)"
+            style="position:absolute;opacity:0;width:100%;height:100%;cursor:pointer;margin:0">
+          <span id="notifTrack" style="display:block;width:44px;height:24px;border-radius:12px;background:rgba(255,255,255,.15);transition:background .2s;"></span>
+          <span id="notifThumb" style="position:absolute;top:2px;left:2px;width:20px;height:20px;background:#fff;border-radius:50%;transition:transform .2s;pointer-events:none;"></span>
+        </label>
+      </div>
     </div>
-  </div>
   </div>
 </div>
 
 <!-- BOTTOM NAV -->
 <div class="bnav">
-  <button class="nbtn active" id="nMain"   onclick="goTo('Main')"><span class="ni">🦫</span>Вася</button>
-  <button class="nbtn"        id="nShop"   onclick="goTo('Shop')"><span class="ni">🛒</span>Магазин</button>
-  <button class="nbtn"        id="nQuests" onclick="goTo('Quests');renderQuests()"><span class="ni">📋</span>Задания<span class="badge" id="questBadge" style="display:none">!</span></button>
-  <button class="nbtn"        id="nBoard"  onclick="goTo('Board');loadLb()"><span class="ni">🏆</span>Рейтинг</button>
+  <button class="nbtn active" id="nMain"    onclick="goTo('Main')"><span class="ni">🦫</span>Вася</button>
+  <button class="nbtn"        id="nShop"    onclick="goTo('Shop')"><span class="ni">🛒</span>Магазин</button>
+  <button class="nbtn"        id="nQuests"  onclick="goTo('Quests');renderQuests()"><span class="ni">📋</span>Задания<span class="badge" id="questBadge" style="display:none">!</span></button>
+  <button class="nbtn"        id="nBoard"   onclick="goTo('Board');loadLb()"><span class="ni">🏆</span>Рейтинг</button>
   <button class="nbtn"        id="nFriends" onclick="goTo('Friends')"><span class="ni">👥</span>Друзья</button>
 </div>
 
 <script>
-/* ── КОНФИГ ── */
 const CFG = {
-  BACKEND: 'https://kapibarabigclub.onrender.com',
-  BOT:     'kapibarabigclub_bot',
-  APP:     'kapibarabigclub',
-  MAX_OFFLINE_H:       4,
-  SAVE_EVERY_S:        15,
-  HUNGER_DRAIN_PER_HOUR:   15,
-  HUNGER_RESTORE_PER_TAP:  0.5,
+  BACKEND:'https://kapibarabigclub.onrender.com',
+  BOT:'kapibarabigclub_bot', APP:'kapibarabigclub',
+  MAX_OFFLINE_H:4, SAVE_EVERY_S:15,
+  HUNGER_DRAIN_PER_HOUR:15, HUNGER_RESTORE_PER_TAP:0.5,
 };
-
-/* ── СТАДИИ ── */
-const STAGES = [
-  { name:'Васятка', need:0,      skin:0, ico:'🦫' },
-  { name:'Пухляш',  need:5e3,   skin:1, ico:'🧡' },
-  { name:'Толстяк', need:50e3,  skin:2, ico:'🌟' },
-  { name:'Босс',    need:500e3, skin:3, ico:'💙' },
-  { name:'Легенда', need:5e6,   skin:4, ico:'🌈' },
+const STAGES=[
+  {name:'Васятка',need:0,    skin:0,ico:'🦫'},
+  {name:'Пухляш', need:5e3,  skin:1,ico:'🧡'},
+  {name:'Толстяк',need:50e3, skin:2,ico:'🌟'},
+  {name:'Босс',   need:500e3,skin:3,ico:'💙'},
+  {name:'Легенда',need:5e6,  skin:4,ico:'🌈'},
 ];
-
-/* ── УЛУЧШЕНИЯ ── */
-const UPGS = [
-  { id:'bowl',   name:'Миска Васи',      ico:'🥣', desc:'+1 сила тапа',       eff:'tap', val:1,   costs:[500,2500,10000,50000,200000] },
-  { id:'collar', name:'Золотой ошейник', ico:'📿', desc:'+2 сила тапа',       eff:'tap', val:2,   costs:[2000,10000,50000,200000,800000] },
-  { id:'pool',   name:'Бассейн',         ico:'🏊', desc:'+100 макс. энергии', eff:'ene', val:100, costs:[1000,5000,25000,100000,400000] },
-  { id:'chef',   name:'Повар',           ico:'👨‍🍳',desc:'+0.5 морк./сек',    eff:'ps',  val:0.5, costs:[5000,25000,100000,400000,1500000] },
-  { id:'villa',  name:'Вилла',           ico:'🏠', desc:'+1 морк./сек',       eff:'ps',  val:1,   costs:[20000,100000,400000,1500000,5000000] },
+const UPGS=[
+  {id:'bowl',  name:'Миска Васи',     ico:'🥣',desc:'+1 сила тапа',      eff:'tap',val:1,  costs:[500,2500,10000,50000,200000]},
+  {id:'collar',name:'Золотой ошейник',ico:'📿',desc:'+2 сила тапа',      eff:'tap',val:2,  costs:[2000,10000,50000,200000,800000]},
+  {id:'pool',  name:'Бассейн',        ico:'🏊',desc:'+100 макс. энергии',eff:'ene',val:100,costs:[1000,5000,25000,100000,400000]},
+  {id:'chef',  name:'Повар',          ico:'👨‍🍳',desc:'+0.5 морк./сек',  eff:'ps', val:.5, costs:[5000,25000,100000,400000,1500000]},
+  {id:'villa', name:'Вилла',          ico:'🏠',desc:'+1 морк./сек',      eff:'ps', val:1,  costs:[20000,100000,400000,1500000,5000000]},
 ];
-
-/* ── КВЕСТЫ ── */
-const QUEST_DEFS = [
-  { id:'tap100',    ico:'👆', name:'Первые шаги',    desc:'Сделай 100 тапов',           type:'taps',   target:100,    reward:200 },
-  { id:'tap1000',   ico:'🔥', name:'Тап-мастер',     desc:'Сделай 1 000 тапов',         type:'taps',   target:1000,   reward:1000 },
-  { id:'tap10000',  ico:'💪', name:'Тап-легенда',    desc:'Сделай 10 000 тапов',        type:'taps',   target:10000,  reward:5000 },
-  { id:'earn1k',    ico:'🥕', name:'Первая тысяча',  desc:'Заработай 1 000 морковок',   type:'earned', target:1000,   reward:300 },
-  { id:'earn50k',   ico:'💰', name:'Богач',          desc:'Заработай 50 000 морковок',  type:'earned', target:50000,  reward:2000 },
-  { id:'earn500k',  ico:'🤑', name:'Миллионер',      desc:'Заработай 500 000 морковок', type:'earned', target:500000, reward:10000 },
-  { id:'stage2',    ico:'🧡', name:'Растёшь!',       desc:'Достигни стадии Пухляш',     type:'stage',  target:1,      reward:500 },
-  { id:'stage3',    ico:'🌟', name:'Толстяк!',       desc:'Достигни стадии Толстяк',    type:'stage',  target:2,      reward:2000 },
-  { id:'stage4',    ico:'💙', name:'Босс!',          desc:'Достигни стадии Босс',       type:'stage',  target:3,      reward:8000 },
-  { id:'upg1',      ico:'🛒', name:'Первое улучшение', desc:'Купи любое улучшение',     type:'upgrades',target:1,     reward:500 },
-  { id:'upg5',      ico:'⚡', name:'Прокачка',       desc:'Купи 5 улучшений',           type:'upgrades',target:5,     reward:2000 },
-  { id:'daily3',    ico:'📅', name:'Постоянство',    desc:'Зайди 3 дня подряд',         type:'streak', target:3,      reward:1500 },
-  { id:'daily7',    ico:'🗓️', name:'Неделя Васи',   desc:'Зайди 7 дней подряд',        type:'streak', target:7,      reward:5000 },
-  { id:'hungry0', ico:'😋', name:'Сытый Вася', desc:'Восстанови сытость выше 90%', type:'hunger', target:90, reward:300 },
+const QUEST_DEFS=[
+  {id:'tap100',  ico:'👆',name:'Первые шаги',   desc:'Сделай 100 тапов',          type:'taps',   target:100,   reward:200},
+  {id:'tap1000', ico:'🔥',name:'Тап-мастер',    desc:'Сделай 1 000 тапов',        type:'taps',   target:1000,  reward:1000},
+  {id:'tap10000',ico:'💪',name:'Тап-легенда',   desc:'Сделай 10 000 тапов',       type:'taps',   target:10000, reward:5000},
+  {id:'earn1k',  ico:'🥕',name:'Первая тысяча', desc:'Заработай 1 000 морковок',  type:'earned', target:1000,  reward:300},
+  {id:'earn50k', ico:'💰',name:'Богач',         desc:'Заработай 50 000 морковок', type:'earned', target:50000, reward:2000},
+  {id:'earn500k',ico:'🤑',name:'Миллионер',     desc:'Заработай 500 000 морковок',type:'earned', target:500000,reward:10000},
+  {id:'stage2',  ico:'🧡',name:'Растёшь!',      desc:'Достигни стадии Пухляш',    type:'stage',  target:1,     reward:500},
+  {id:'stage3',  ico:'🌟',name:'Толстяк!',      desc:'Достигни стадии Толстяк',   type:'stage',  target:2,     reward:2000},
+  {id:'stage4',  ico:'💙',name:'Босс!',         desc:'Достигни стадии Босс',      type:'stage',  target:3,     reward:8000},
+  {id:'upg1',    ico:'🛒',name:'Первое улучшение',desc:'Купи любое улучшение',    type:'upgrades',target:1,    reward:500},
+  {id:'upg5',    ico:'⚡',name:'Прокачка',      desc:'Купи 5 улучшений',          type:'upgrades',target:5,    reward:2000},
+  {id:'daily3',  ico:'📅',name:'Постоянство',   desc:'Зайди 3 дня подряд',        type:'streak', target:3,     reward:1500},
+  {id:'daily7',  ico:'🗓️',name:'Неделя Васи',  desc:'Зайди 7 дней подряд',       type:'streak', target:7,     reward:5000},
+  {id:'hungry0', ico:'😋',name:'Сытый Вася',    desc:'Восстанови сытость выше 90%',type:'hunger',target:90,    reward:300},
 ];
+const DAILY_REWARDS=[500,1000,2000,3500,5000,7500,10000];
+const SPARK_COLORS=['#a78bfa','#ffd166','#ff6b6b','#4ecdc4','#fff'];
 
-/* ── СОСТОЯНИЕ ── */
-let S = {
-  coins:0, total:0, energy:500, maxE:500,
-  tap:1, ps:0, hunger:100,
-  upgs:{ bowl:0, collar:0, pool:0, chef:0, villa:0 },
-  stage:0, refs:0,
-  savedAt: Date.now(),
-  lastDaily:0, dailyStreak:0,
-  /* Счётчики для квестов */
-  totalTaps:0, totalUpgrades:0,
-  questClaimed: {},  /* id → true */
+let S={
+  coins:0,total:0,energy:500,maxE:500,tap:1,ps:0,hunger:100,
+  upgs:{bowl:0,collar:0,pool:0,chef:0,villa:0},
+  stage:0,refs:0,savedAt:Date.now(),
+  lastDaily:0,dailyStreak:0,totalTaps:0,totalUpgrades:0,
+  questClaimed:{},notifEnabled:false,
 };
-
 let tg=window.Telegram?.WebApp;
-let userId=null, refUrl='';
-let lastTick=Date.now(), saveAcc=0, psAcc=0;
-let bonusTap=1, bonusEnd=0;
-let hungerModalShown=false;
+let userId=null,refUrl='';
+let lastTick=Date.now(),saveAcc=0,psAcc=0;
+let bonusTap=1,bonusEnd=0,hungerModalShown=false;
 
-const SPARK_COLORS=['#f0a500','#ffd700','#ff6b6b','#4ecdc4','#fff'];
-
-/* ── INIT ── */
 (async()=>{
-  if(tg){ tg.ready(); tg.expand(); userId=tg.initDataUnsafe?.user?.id; }
+  if(tg){tg.ready();tg.expand();userId=tg.initDataUnsafe?.user?.id;}
   await loadState();
   const sp=tg?.initDataUnsafe?.start_param||'';
   if(sp.startsWith('ref_')) registerRef(sp.slice(4));
@@ -512,152 +640,102 @@ const SPARK_COLORS=['#f0a500','#ffd700','#ff6b6b','#4ecdc4','#fff'];
   renderShop();
   updateDailyBtn();
   setInterval(updateDailyBtn,60000);
-  initNotif();
   updateQuestBadge();
+  initNotif();
   loop();
 })();
 
-/* ── SAVE / LOAD ── */
 async function loadState(){
   return new Promise(res=>{
-    const local=()=>{ try{ const d=localStorage.getItem('kap_v2'); if(d) apply(JSON.parse(d)); }catch(e){} res(); };
-    if(tg?.CloudStorage){
-      tg.CloudStorage.getItem('ks2',(e,v)=>{ if(!e&&v){ try{ apply(JSON.parse(v)); }catch(err){} } else local(); res(); });
-    } else local();
+    const local=()=>{try{const d=localStorage.getItem('kap_v2');if(d)apply(JSON.parse(d));}catch(e){}res();};
+    if(tg?.CloudStorage){tg.CloudStorage.getItem('ks2',(e,v)=>{if(!e&&v){try{apply(JSON.parse(v));}catch(err){}}else local();res();});}
+    else local();
   });
 }
-
 function apply(d){
   const now=Date.now();
   const offS=Math.min((now-(d.savedAt||now))/1000,CFG.MAX_OFFLINE_H*3600);
-  Object.assign(S,d); S.savedAt=now;
-  if(S.hunger===undefined) S.hunger=100;
-  if(!S.questClaimed) S.questClaimed={};
-  if(!S.totalTaps) S.totalTaps=0;
-  if(!S.totalUpgrades) S.totalUpgrades=0;
+  Object.assign(S,d);S.savedAt=now;
+  if(S.hunger===undefined)S.hunger=100;
+  if(!S.questClaimed)S.questClaimed={};
+  if(!S.totalTaps)S.totalTaps=0;
+  if(!S.totalUpgrades)S.totalUpgrades=0;
   recalc();
   S.energy=Math.min(S.maxE,S.energy+offS);
   S.hunger=Math.max(0,S.hunger-(offS/3600)*CFG.HUNGER_DRAIN_PER_HOUR);
-  if(offS>60&&S.ps>0){
-    const earn=Math.floor(S.ps*offS*hungerMult());
-    S.coins+=earn; S.total+=earn;
-    if(earn>0) showOfflineModal(`+${fmt(earn)} 🥕`);
-  }
-  if(S.hunger<20&&offS>300){
-    setTimeout(()=>document.getElementById('hungerModal').classList.add('show'),800);
-    hungerModalShown=true;
-  }
+  if(offS>60&&S.ps>0){const earn=Math.floor(S.ps*offS*hungerMult());S.coins+=earn;S.total+=earn;if(earn>0)showOfflineModal(`+${fmt(earn)} 🥕`);}
+  if(S.hunger<20&&offS>300){setTimeout(()=>document.getElementById('hungerModal').classList.add('show'),800);hungerModalShown=true;}
 }
-
 function save(){
-  S.savedAt=Date.now();
-  const j=JSON.stringify(S);
+  S.savedAt=Date.now();const j=JSON.stringify(S);
   localStorage.setItem('kap_v2',j);
-  if(tg?.CloudStorage) tg.CloudStorage.setItem('ks2',j,()=>{});
+  if(tg?.CloudStorage)tg.CloudStorage.setItem('ks2',j,()=>{});
 }
-
 function recalc(){
   let tap=1,ps=0,maxE=500;
-  for(const u of UPGS){ const lv=S.upgs[u.id]||0; if(!lv) continue;
-    if(u.eff==='tap') tap+=u.val*lv;
-    if(u.eff==='ps')  ps+=u.val*lv;
-    if(u.eff==='ene') maxE+=u.val*lv;
-  }
-  S.tap=tap; S.ps=ps; S.maxE=maxE;
-  S.energy=Math.min(S.energy,S.maxE);
+  for(const u of UPGS){const lv=S.upgs[u.id]||0;if(!lv)continue;
+    if(u.eff==='tap')tap+=u.val*lv;if(u.eff==='ps')ps+=u.val*lv;if(u.eff==='ene')maxE+=u.val*lv;}
+  S.tap=tap;S.ps=ps;S.maxE=maxE;S.energy=Math.min(S.energy,S.maxE);
 }
+function hungerMult(){if(S.hunger>=50)return 1;if(S.hunger>=20)return .75;return .5;}
 
-function hungerMult(){
-  if(S.hunger>=50) return 1.0;
-  if(S.hunger>=20) return 0.75;
-  return 0.5;
-}
-
-/* ── LOOP ── */
 function loop(){
-  const now=Date.now(), dt=(now-lastTick)/1000; lastTick=now;
+  const now=Date.now(),dt=(now-lastTick)/1000;lastTick=now;
   const hm=hungerMult();
-  psAcc+=S.ps*dt*hm;
-  if(psAcc>=1){ const e=Math.floor(psAcc); S.coins+=e; S.total+=e; psAcc-=e; }
-  if(S.energy<S.maxE) S.energy=Math.min(S.maxE,S.energy+dt*0.3);
+  psAcc+=S.ps*dt*hm;if(psAcc>=1){const e=Math.floor(psAcc);S.coins+=e;S.total+=e;psAcc-=e;}
+  if(S.energy<S.maxE)S.energy=Math.min(S.maxE,S.energy+dt*.3);
   S.hunger=Math.max(0,S.hunger-(CFG.HUNGER_DRAIN_PER_HOUR/3600)*dt);
-  if(S.hunger<20&&!hungerModalShown){ hungerModalShown=true; document.getElementById('hungerModal').classList.add('show'); }
-  if(S.hunger>=30) hungerModalShown=false;
-  saveAcc+=dt;
-  if(saveAcc>=CFG.SAVE_EVERY_S){ save(); submitScore(); saveAcc=0; }
-  ui();
-  requestAnimationFrame(loop);
+  if(S.hunger<20&&!hungerModalShown){hungerModalShown=true;document.getElementById('hungerModal').classList.add('show');}
+  if(S.hunger>=30)hungerModalShown=false;
+  saveAcc+=dt;if(saveAcc>=CFG.SAVE_EVERY_S){save();submitScore();saveAcc=0;}
+  ui();requestAnimationFrame(loop);
 }
 
-/* ── TAP ── */
 function onTap(ev){
-  if(S.energy<1){
-    fl('😴 нет аппетита',ev.clientX,ev.clientY,'#888');
-    tg?.HapticFeedback?.notificationOccurred('error');
-    return;
-  }
+  if(S.energy<1){fl('😴 нет аппетита',ev.clientX,ev.clientY,'#8880aa');tg?.HapticFeedback?.notificationOccurred('error');return;}
   S.hunger=Math.min(100,S.hunger+CFG.HUNGER_RESTORE_PER_TAP);
   S.totalTaps++;
   const mult=(Date.now()<bonusEnd)?bonusTap:1;
   const hm=hungerMult();
   const earn=Math.max(1,Math.floor(S.tap*mult*hm));
-  S.coins+=earn; S.total+=earn;
-  S.energy=Math.max(0,S.energy-1);
-
+  S.coins+=earn;S.total+=earn;S.energy=Math.max(0,S.energy-1);
   const card=document.getElementById('capyCard');
-  card.classList.remove('tapped'); void card.offsetWidth; card.classList.add('tapped');
+  card.classList.remove('tapped');void card.offsetWidth;card.classList.add('tapped');
   spawnSparks(ev.clientX,ev.clientY,earn);
-  fl(`+${earn} 🥕`,ev.clientX,ev.clientY,hm<1?'#ff9500':'#f0a500');
+  fl(`+${earn} 🥕`,ev.clientX,ev.clientY,hm<1?'#ffb347':'#ffd166');
   const glow=document.getElementById('capyGlow');
-  glow.style.background='radial-gradient(circle,rgba(240,165,0,.45) 0%,rgba(240,165,0,0) 70%)';
-  setTimeout(()=>glow.style.background='radial-gradient(circle,rgba(240,165,0,.18) 0%,rgba(240,165,0,0) 70%)',200);
+  glow.style.background='radial-gradient(circle,rgba(167,139,250,.5) 0%,transparent 70%)';
+  setTimeout(()=>glow.style.background='radial-gradient(circle,rgba(167,139,250,.2) 0%,transparent 70%)',200);
   tg?.HapticFeedback?.impactOccurred('light');
-  playTap(earn);
-  checkEvo();
-  updateQuestBadge();
+  playTap(earn);checkEvo();updateQuestBadge();
 }
-
 function spawnSparks(x,y,earn){
-  const count=Math.min(6,3+Math.floor(earn/3));
+  const count=Math.min(7,3+Math.floor(earn/3));
   for(let i=0;i<count;i++){
-    const el=document.createElement('div');
-    el.className='spark';
-    const angle=(Math.PI*2/count)*i+Math.random()*.5;
-    const dist=40+Math.random()*40;
+    const el=document.createElement('div');el.className='spark';
+    const angle=(Math.PI*2/count)*i+Math.random()*.5,dist=40+Math.random()*45;
     el.style.cssText=`left:${x-4}px;top:${y-4}px;background:${SPARK_COLORS[i%SPARK_COLORS.length]};--dx:${Math.cos(angle)*dist}px;--dy:${Math.sin(angle)*dist}px;`;
-    document.body.appendChild(el);
-    setTimeout(()=>el.remove(),650);
+    document.body.appendChild(el);setTimeout(()=>el.remove(),650);
   }
 }
-
 function fl(txt,x,y,col){
-  const el=document.createElement('div');
-  el.className='fl'; el.textContent=txt;
+  const el=document.createElement('div');el.className='fl';el.textContent=txt;
   el.style.cssText=`left:${x-28}px;top:${y-20}px;color:${col}`;
-  document.body.appendChild(el);
-  setTimeout(()=>el.remove(),920);
+  document.body.appendChild(el);setTimeout(()=>el.remove(),920);
 }
-
-/* ── EVOLUTION ── */
 function checkEvo(){
   for(let i=STAGES.length-1;i>=0;i--){
     if(S.total>=STAGES[i].need){
       if(S.stage!==i){
-        S.stage=i;
-        const b=document.getElementById('evBanner');
-        const st=STAGES[i];
-        b.textContent=`${st.ico} Новая стадия: ${st.name}!`;
-        b.style.display='block';
-        tg?.HapticFeedback?.notificationOccurred('success');
-        playEvolve();
-        setTimeout(()=>b.style.display='none',3200);
+        S.stage=i;const b=document.getElementById('evBanner');
+        b.textContent=`${STAGES[i].ico} Новая стадия: ${STAGES[i].name}!`;
+        b.style.display='block';tg?.HapticFeedback?.notificationOccurred('success');
+        playEvolve();setTimeout(()=>b.style.display='none',3200);
       }
       break;
     }
   }
 }
-
-/* ── UI ── */
 function ui(){
   const h=Math.floor(S.hunger);
   document.getElementById('cDisp').textContent=fmt(Math.floor(S.coins));
@@ -667,36 +745,30 @@ function ui(){
   document.getElementById('tpDisp').textContent=S.tap;
   document.getElementById('psDisp').textContent=fmt(S.ps);
   const st=STAGES[S.stage];
-  document.getElementById('stageLbl').textContent=`${st.ico} Стадия: ${st.name}`;
-
+  document.getElementById('stageLbl').textContent=`${st.ico} СТАДИЯ: ${st.name.toUpperCase()}`;
   document.getElementById('hungerTxt').textContent=`${h}/100`;
   const hFill=document.getElementById('hFill');
   hFill.style.width=h+'%';
   hFill.className='bar-fill bar-fill-hunger'+(h<20?' crit':h<50?' low':'');
-
   const img=document.getElementById('capyImg');
-  const skin=STAGES[S.stage].skin;
-  let cls=`skin-${skin}`;
-  if(h<20) cls+=' starving'; else if(h<50) cls+=' hungry';
+  let cls=`skin-${STAGES[S.stage].skin}`;
+  if(h<20)cls+=' starving';else if(h<50)cls+=' hungry';
   img.className=cls;
-
   document.getElementById('hungerAlert').style.display=h<30?'block':'none';
   const hint=document.getElementById('tapHint');
-  if(h<20) hint.textContent='😢 Вася очень голоден! Тапай скорее!';
-  else if(h<50) hint.textContent='😐 Вася немного голоден...';
+  if(h<20)hint.textContent='😢 Вася очень голоден! Тапай скорее!';
+  else if(h<50)hint.textContent='😐 Вася немного голоден...';
   else hint.textContent='Нажимай на Васю, чтобы кормить!';
 }
-
 function fmt(n){
-  if(n>=1e9) return (n/1e9).toFixed(1)+'B';
-  if(n>=1e6) return (n/1e6).toFixed(1)+'M';
-  if(n>=1e3) return (n/1e3).toFixed(1)+'K';
+  if(n>=1e9)return(n/1e9).toFixed(1)+'B';
+  if(n>=1e6)return(n/1e6).toFixed(1)+'M';
+  if(n>=1e3)return(n/1e3).toFixed(1)+'K';
   return Number.isInteger(n)?String(n):n.toFixed(1);
 }
 
-/* ── SHOP ── */
 function renderShop(){
-  const c=document.getElementById('shopList'); c.innerHTML='';
+  const c=document.getElementById('shopList');c.innerHTML='';
   for(const u of UPGS){
     const lv=S.upgs[u.id]||0,mx=lv>=5;
     const cost=mx?0:u.costs[lv],ok=!mx&&S.coins>=cost;
@@ -717,51 +789,40 @@ function renderShop(){
       </div>`);
   }
 }
-
 function refreshBtns(){
   for(const u of UPGS){
     const lv=S.upgs[u.id]||0,mx=lv>=5;
     const btn=document.getElementById('bb_'+u.id);
-    if(btn) btn.disabled=mx||S.coins<u.costs[lv];
+    if(btn)btn.disabled=mx||S.coins<u.costs[lv];
   }
 }
-
 function buy(id){
   const u=UPGS.find(x=>x.id===id),lv=S.upgs[id]||0;
-  if(lv>=5||S.coins<u.costs[lv]) return;
-  S.coins-=u.costs[lv]; S.upgs[id]=lv+1;
-  S.totalUpgrades++;
-  recalc(); renderShop(); save();
-  tg?.HapticFeedback?.impactOccurred('medium');
-  updateQuestBadge();
+  if(lv>=5||S.coins<u.costs[lv])return;
+  S.coins-=u.costs[lv];S.upgs[id]=lv+1;S.totalUpgrades++;
+  recalc();renderShop();save();
+  tg?.HapticFeedback?.impactOccurred('medium');updateQuestBadge();
 }
 
-/* ── QUESTS ── */
 function questProgress(q){
   switch(q.type){
-    case 'taps':     return Math.min(S.totalTaps, q.target);
-    case 'earned':   return Math.min(S.total, q.target);
-    case 'stage':    return Math.min(S.stage, q.target);
-    case 'upgrades': return Math.min(S.totalUpgrades, q.target);
-    case 'streak':   return Math.min(S.dailyStreak||0, q.target);
-    case 'hunger':   return Math.min(Math.floor(S.hunger), q.target);
-    default: return 0;
+    case'taps':    return Math.min(S.totalTaps,q.target);
+    case'earned':  return Math.min(S.total,q.target);
+    case'stage':   return Math.min(S.stage,q.target);
+    case'upgrades':return Math.min(S.totalUpgrades,q.target);
+    case'streak':  return Math.min(S.dailyStreak||0,q.target);
+    case'hunger':  return Math.min(Math.floor(S.hunger),q.target);
+    default:return 0;
   }
 }
-
 function renderQuests(){
-  const c=document.getElementById('questList'); c.innerHTML='';
+  const c=document.getElementById('questList');c.innerHTML='';
   for(const q of QUEST_DEFS){
     const claimed=S.questClaimed[q.id];
-    const prog=questProgress(q);
-    const done=prog>=q.target;
+    const prog=questProgress(q),done=prog>=q.target;
     const pct=Math.min(100,Math.round(prog/q.target*100));
-    let btns='';
-    if(claimed){
-      btns=`<div class="quest-done-lbl">✅ Выполнено</div>`;
-    } else if(done){
-      btns=`<button class="quest-claim-btn" onclick="claimQuest('${q.id}')">🎁 Забрать +${fmt(q.reward)} 🥕</button>`;
-    }
+    let btns=claimed?`<div class="quest-done-lbl">✅ Выполнено</div>`:
+      done?`<button class="quest-claim-btn" onclick="claimQuest('${q.id}')">🎁 Забрать +${fmt(q.reward)} 🥕</button>`:'';
     c.insertAdjacentHTML('beforeend',`
       <div class="quest-card${done&&!claimed?' done':''}${claimed?' claimed':''}">
         <div class="quest-top">
@@ -772,106 +833,77 @@ function renderQuests(){
             <div class="quest-reward">+${fmt(q.reward)} 🥕</div>
           </div>
         </div>
-        ${!claimed?`
-        <div class="quest-bar-bg"><div class="quest-bar-fill" style="width:${pct}%"></div></div>
-        <div class="quest-progress"><span>${fmt(prog)} / ${fmt(q.target)}</span><span>${pct}%</span></div>
-        `:''}
+        ${!claimed?`<div class="quest-bar-bg"><div class="quest-bar-fill" style="width:${pct}%"></div></div>
+        <div class="quest-progress"><span>${fmt(prog)} / ${fmt(q.target)}</span><span>${pct}%</span></div>`:''}
         ${btns}
       </div>`);
   }
 }
-
 function claimQuest(id){
   const q=QUEST_DEFS.find(x=>x.id===id);
-  if(!q||S.questClaimed[id]) return;
-  if(questProgress(q)<q.target) return;
-  S.questClaimed[id]=true;
-  S.coins+=q.reward; S.total+=q.reward;
-  fl(`+${fmt(q.reward)} 🥕`,window.innerWidth/2,window.innerHeight/3,'#4caf50');
-  tg?.HapticFeedback?.notificationOccurred('success');
-  playDaily();
-  save();
-  renderQuests();
-  updateQuestBadge();
+  if(!q||S.questClaimed[id]||questProgress(q)<q.target)return;
+  S.questClaimed[id]=true;S.coins+=q.reward;S.total+=q.reward;
+  fl(`+${fmt(q.reward)} 🥕`,window.innerWidth/2,window.innerHeight/3,'#6bcb77');
+  tg?.HapticFeedback?.notificationOccurred('success');playDaily();
+  save();renderQuests();updateQuestBadge();
 }
-
 function updateQuestBadge(){
   const ready=QUEST_DEFS.filter(q=>!S.questClaimed[q.id]&&questProgress(q)>=q.target).length;
-  const badge=document.getElementById('questBadge');
-  badge.style.display=ready>0?'block':'none';
-  badge.textContent=ready;
+  const b=document.getElementById('questBadge');
+  b.style.display=ready>0?'block':'none';b.textContent=ready;
 }
-
-/* ── DAILY REWARD ── */
-const DAILY_REWARDS=[500,1000,2000,3500,5000,7500,10000];
 
 function openDaily(){
   const now=Date.now(),lastDay=S.lastDaily||0,elapsed=now-lastDay;
-  const canClaim=elapsed>=20*3600*1000;
-  const expired=elapsed>=48*3600*1000;
-  if(expired&&lastDay>0) S.dailyStreak=0;
-  const idx=Math.min(S.dailyStreak||0,DAILY_REWARDS.length-1);
-  const reward=DAILY_REWARDS[idx];
-  const streak7=document.getElementById('dailyStreak');
-  streak7.innerHTML=DAILY_REWARDS.map((r,i)=>{
+  const canClaim=elapsed>=20*3600*1000,expired=elapsed>=48*3600*1000;
+  if(expired&&lastDay>0)S.dailyStreak=0;
+  const idx=Math.min(S.dailyStreak||0,DAILY_REWARDS.length-1),reward=DAILY_REWARDS[idx];
+  document.getElementById('dailyStreak').innerHTML=DAILY_REWARDS.map((r,i)=>{
     const done=i<idx,current=i===idx;
     return `<div style="width:38px;height:50px;border-radius:10px;
-      background:${done?'rgba(240,165,0,.3)':current?'rgba(240,165,0,.15)':'rgba(255,255,255,.05)'};
-      border:1px solid ${current?'var(--gold)':'rgba(255,255,255,.1)'};
+      background:${done?'rgba(167,139,250,.25)':current?'rgba(167,139,250,.12)':'rgba(255,255,255,.05)'};
+      border:1px solid ${current?'var(--btn)':'rgba(255,255,255,.1)'};
       display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
-      font-size:10px;color:${done?'var(--gold)':current?'var(--text)':'var(--hint)'}">
+      font-size:10px;font-weight:700;color:${done?'var(--btn)':current?'var(--tg-text)':'var(--tg-hint)'}">
       <div style="font-size:14px">${done?'✅':current?'🎁':'🔒'}</div>
-      <div>День ${i+1}</div>
-    </div>`;
+      <div>День ${i+1}</div></div>`;
   }).join('');
   document.getElementById('dailyAmt').textContent=`+${fmt(reward)} 🥕`;
   document.getElementById('dailyEmoji').textContent=canClaim?'🎁':'⏳';
   const btn=document.getElementById('dailyClaimBtn');
-  if(canClaim){ btn.textContent='Забрать!'; btn.disabled=false; btn.style.opacity='1'; }
-  else{ const left=Math.ceil((20*3600*1000-elapsed)/3600000); btn.textContent=`Ещё ${left} ч`; btn.disabled=true; btn.style.opacity='.5'; }
+  if(canClaim){btn.textContent='Забрать!';btn.disabled=false;btn.style.opacity='1';}
+  else{const left=Math.ceil((20*3600*1000-elapsed)/3600000);btn.textContent=`Ещё ${left} ч`;btn.disabled=true;btn.style.opacity='.5';}
   document.getElementById('dailyModal').classList.add('show');
 }
-
 function claimDaily(){
   const now=Date.now(),elapsed=now-(S.lastDaily||0);
-  if(elapsed<20*3600*1000) return;
-  const idx=Math.min(S.dailyStreak||0,DAILY_REWARDS.length-1);
-  const reward=DAILY_REWARDS[idx];
-  S.coins+=reward; S.total+=reward;
-  S.dailyStreak=(S.dailyStreak||0)+1;
-  S.lastDaily=now;
+  if(elapsed<20*3600*1000)return;
+  const idx=Math.min(S.dailyStreak||0,DAILY_REWARDS.length-1),reward=DAILY_REWARDS[idx];
+  S.coins+=reward;S.total+=reward;S.dailyStreak=(S.dailyStreak||0)+1;S.lastDaily=now;
   document.getElementById('dailyModal').classList.remove('show');
-  fl(`+${fmt(reward)} 🥕`,window.innerWidth/2,window.innerHeight/2,'#f0a500');
-  tg?.HapticFeedback?.notificationOccurred('success');
-  playDaily();
-  save();
-  updateDailyBtn();
-  updateQuestBadge();
+  fl(`+${fmt(reward)} 🥕`,window.innerWidth/2,window.innerHeight/2,'#ffd166');
+  tg?.HapticFeedback?.notificationOccurred('success');playDaily();
+  save();updateDailyBtn();updateQuestBadge();
 }
-
 function updateDailyBtn(){
-  const elapsed=Date.now()-(S.lastDaily||0);
-  const canClaim=elapsed>=20*3600*1000;
-  const btn=document.getElementById('dailyBtn');
-  const txt=document.getElementById('dailyBtnTxt');
-  if(!btn) return;
-  if(canClaim){ txt.textContent='Награда!'; btn.style.animation='pulse 1.5s infinite'; }
-  else{ const left=Math.ceil((20*3600*1000-elapsed)/3600000); txt.textContent=`${left}ч`; btn.style.animation='none'; }
+  const elapsed=Date.now()-(S.lastDaily||0),canClaim=elapsed>=20*3600*1000;
+  const btn=document.getElementById('dailyBtn'),txt=document.getElementById('dailyBtnTxt');
+  if(!btn)return;
+  if(canClaim){txt.textContent='Награда!';btn.style.animation='pulse 1.5s infinite';}
+  else{const left=Math.ceil((20*3600*1000-elapsed)/3600000);txt.textContent=`${left}ч`;btn.style.animation='none';}
 }
 
-/* ── ЗВУК ── */
 let audioCtx=null;
-function getAudio(){ if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+function getAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
 function playTap(earn){
   try{
     const ctx=getAudio(),osc=ctx.createOscillator(),gain=ctx.createGain();
-    osc.connect(gain); gain.connect(ctx.destination);
+    osc.connect(gain);gain.connect(ctx.destination);
     const freq=300+Math.min(earn*8,500);
     osc.frequency.setValueAtTime(freq,ctx.currentTime);
     osc.frequency.exponentialRampToValueAtTime(freq*1.4,ctx.currentTime+.06);
-    gain.gain.setValueAtTime(.18,ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.12);
-    osc.type='sine'; osc.start(ctx.currentTime); osc.stop(ctx.currentTime+.12);
+    gain.gain.setValueAtTime(.15,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.12);
+    osc.type='sine';osc.start(ctx.currentTime);osc.stop(ctx.currentTime+.12);
   }catch(e){}
 }
 function playEvolve(){
@@ -879,11 +911,11 @@ function playEvolve(){
     const ctx=getAudio(),notes=[523,659,784,1047];
     notes.forEach((freq,i)=>{
       const osc=ctx.createOscillator(),gain=ctx.createGain();
-      osc.connect(gain); gain.connect(ctx.destination);
+      osc.connect(gain);gain.connect(ctx.destination);
       const t=ctx.currentTime+i*.12;
       osc.frequency.setValueAtTime(freq,t);
-      gain.gain.setValueAtTime(.15,t); gain.gain.exponentialRampToValueAtTime(.001,t+.2);
-      osc.type='sine'; osc.start(t); osc.stop(t+.2);
+      gain.gain.setValueAtTime(.15,t);gain.gain.exponentialRampToValueAtTime(.001,t+.2);
+      osc.type='sine';osc.start(t);osc.stop(t+.2);
     });
   }catch(e){}
 }
@@ -892,52 +924,46 @@ function playDaily(){
     const ctx=getAudio(),notes=[784,988,1175];
     notes.forEach((freq,i)=>{
       const osc=ctx.createOscillator(),gain=ctx.createGain();
-      osc.connect(gain); gain.connect(ctx.destination);
+      osc.connect(gain);gain.connect(ctx.destination);
       const t=ctx.currentTime+i*.15;
       osc.frequency.setValueAtTime(freq,t);
-      gain.gain.setValueAtTime(.12,t); gain.gain.exponentialRampToValueAtTime(.001,t+.25);
-      osc.type='triangle'; osc.start(t); osc.stop(t+.25);
+      gain.gain.setValueAtTime(.12,t);gain.gain.exponentialRampToValueAtTime(.001,t+.25);
+      osc.type='triangle';osc.start(t);osc.stop(t+.25);
     });
   }catch(e){}
 }
 
-/* ── STARS ── */
 function buyStars(product){
-  const links={ energy:'https://t.me/invoice/energy_refill_link', double:'https://t.me/invoice/double_tap_link', skin:'https://t.me/invoice/gold_skin_link' };
-  if(tg?.openInvoice){
-    tg.openInvoice(links[product],(status)=>{
-      if(status==='paid'){
-        if(product==='energy'){ S.energy=S.maxE; tg?.showAlert?.('⚡ Энергия восстановлена!'); }
-        if(product==='double'){ bonusTap=2; bonusEnd=Date.now()+3600000; tg?.showAlert?.('🥕×2 активирован на 1 час!'); }
-        if(product==='skin') tg?.showAlert?.('🏅 Золотая Вася активирована!');
-      }
-    });
-  } else window.open(links[product]);
+  const links={energy:'https://t.me/invoice/energy_refill_link',double:'https://t.me/invoice/double_tap_link',skin:'https://t.me/invoice/gold_skin_link'};
+  if(tg?.openInvoice){tg.openInvoice(links[product],(status)=>{
+    if(status==='paid'){
+      if(product==='energy'){S.energy=S.maxE;tg?.showAlert?.('⚡ Энергия восстановлена!');}
+      if(product==='double'){bonusTap=2;bonusEnd=Date.now()+3600000;tg?.showAlert?.('🥕×2 активирован на 1 час!');}
+      if(product==='skin')tg?.showAlert?.('🏅 Золотая Вася активирована!');
+    }
+  });}else window.open(links[product]);
 }
 
-/* ── ADS ── */
 let AdController;
-async function initAds(){ try{ AdController=await window.Adsgram?.init({blockId:'ТВОЙ_BLOCK_ID',debug:false}); }catch(e){} }
+async function initAds(){try{AdController=await window.Adsgram?.init({blockId:'ТВОЙ_BLOCK_ID',debug:false});}catch(e){}}
 async function watchAd(){
-  if(!AdController){ tg?.showAlert?.('Реклама пока недоступна'); return; }
-  try{ const r=await AdController.show(); if(r.done){ S.energy=Math.min(S.maxE,S.energy+200); tg?.showAlert?.('⚡ +200 энергии!'); } }
-  catch(e){ tg?.showAlert?.('Реклама не загрузилась.'); }
+  if(!AdController){tg?.showAlert?.('Реклама пока недоступна');return;}
+  try{const r=await AdController.show();if(r.done){S.energy=Math.min(S.maxE,S.energy+200);tg?.showAlert?.('⚡ +200 энергии!');}}
+  catch(e){tg?.showAlert?.('Реклама не загрузилась.');}
 }
 async function feedByAd(){
   document.getElementById('hungerModal').classList.remove('show');
-  if(!AdController){ S.hunger=Math.min(100,S.hunger+50); tg?.showAlert?.('🍖 +50% сытости!'); return; }
-  try{ const r=await AdController.show(); if(r.done){ S.hunger=Math.min(100,S.hunger+50); tg?.showAlert?.('🍖 Вася наелся!'); } }catch(e){}
+  if(!AdController){S.hunger=Math.min(100,S.hunger+50);tg?.showAlert?.('🍖 +50% сытости!');return;}
+  try{const r=await AdController.show();if(r.done){S.hunger=Math.min(100,S.hunger+50);tg?.showAlert?.('🍖 Вася наелся!');}}catch(e){}
 }
 initAds();
 
-/* ── LEADERBOARD ── */
 async function loadLb(){
   const w=document.getElementById('lbWrap');
-  w.innerHTML='<p style="padding:14px;color:var(--hint)">Загрузка...</p>';
+  w.innerHTML='<p style="padding:14px;color:var(--tg-hint);font-weight:600">Загрузка...</p>';
   try{
-    const r=await fetch(`${CFG.BACKEND}/leaderboard`);
-    const d=await r.json();
-    if(!d.leaders?.length){ w.innerHTML='<p style="padding:14px;color:var(--hint)">Стань первым!</p>'; return; }
+    const r=await fetch(`${CFG.BACKEND}/leaderboard`);const d=await r.json();
+    if(!d.leaders?.length){w.innerHTML='<p style="padding:14px;color:var(--tg-hint);font-weight:600">Стань первым!</p>';return;}
     const med=['🥇','🥈','🥉'];
     w.innerHTML=d.leaders.map((x,i)=>`
       <div class="lb-item${x.user_id==userId?' me':''}">
@@ -946,79 +972,50 @@ async function loadLb(){
         <div class="lb-score">🥕 ${fmt(x.score)}</div>
       </div>`).join('');
     submitScore();
-  }catch{ w.innerHTML='<p style="padding:14px;color:var(--hint)">Ошибка соединения</p>'; }
+  }catch{w.innerHTML='<p style="padding:14px;color:var(--tg-hint);font-weight:600">Ошибка соединения</p>';}
 }
-
 async function submitScore(){
   const name=tg?.initDataUnsafe?.user?.first_name||'Игрок';
   const id=userId||('guest_'+Math.random().toString(36).slice(2,8));
-  try{
-    await fetch(`${CFG.BACKEND}/score`,{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({user_id:id,name,score:Math.floor(S.total),init_data:tg?.initData||''})
-    });
-  }catch{}
+  try{await fetch(`${CFG.BACKEND}/score`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:id,name,score:Math.floor(S.total),init_data:tg?.initData||''})});}catch{}
 }
-
-/* ── REFERRALS ── */
 async function registerRef(byId){
-  if(!userId||byId===String(userId)) return;
-  try{
-    await fetch(`${CFG.BACKEND}/referral`,{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({user_id:userId,referred_by:byId,init_data:tg?.initData||''})
-    });
-  }catch{}
+  if(!userId||byId===String(userId))return;
+  try{await fetch(`${CFG.BACKEND}/referral`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:userId,referred_by:byId,init_data:tg?.initData||''})});}catch{}
 }
 function shareGame(){
   const txt=`🦫 Играю в Капибара Клуб! Вася уже «${STAGES[S.stage].name}». Покорми и ты!`;
   tg?.openTelegramLink?.(`https://t.me/share/url?url=${encodeURIComponent(refUrl)}&text=${encodeURIComponent(txt)}`);
 }
-function copyRef(){ navigator.clipboard?.writeText(refUrl).catch(()=>{}); tg?.showAlert?.('Ссылка скопирована! 📋'); }
+function copyRef(){navigator.clipboard?.writeText(refUrl).catch(()=>{});tg?.showAlert?.('Ссылка скопирована! 📋');}
 
-/* ── NAVIGATION ── */
+function initNotif(){
+  const enabled=S.notifEnabled===true;
+  updateNotifUI(enabled);
+  document.getElementById('notifToggle').checked=enabled;
+}
+function updateNotifUI(enabled){
+  document.getElementById('notifLabel').textContent=enabled?'Включены ✅':'Отключены';
+  document.getElementById('notifTrack').style.background=enabled?'var(--btn)':'rgba(255,255,255,.15)';
+  document.getElementById('notifThumb').style.transform=enabled?'translateX(20px)':'translateX(0)';
+}
+async function toggleNotif(enabled){
+  S.notifEnabled=enabled;updateNotifUI(enabled);save();
+  if(!userId)return;
+  try{await fetch(`${CFG.BACKEND}/notify/register`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:userId,chat_id:userId,enabled})});}catch(e){}
+  tg?.showAlert?.(enabled?'🔔 Уведомления включены!':'🔕 Уведомления отключены');
+}
+
 function goTo(name){
   ['Main','Shop','Quests','Board','Friends'].forEach(n=>{
     document.getElementById('s'+n).classList.toggle('active',n===name);
     document.getElementById('n'+n).classList.toggle('active',n===name);
   });
-  if(name==='Shop') refreshBtns();
+  if(name==='Shop')refreshBtns();
 }
-
-/* ── MODALS ── */
-function showOfflineModal(txt){ document.getElementById('ofAmt').textContent=txt; document.getElementById('ofModal').classList.add('show'); }
-function closeOfflineModal(){ document.getElementById('ofModal').classList.remove('show'); }
-/* ── УВЕДОМЛЕНИЯ ── */
-function initNotif(){
-  const enabled = S.notifEnabled !== false;
-  updateNotifUI(enabled);
-  document.getElementById('notifToggle').checked = enabled;
-}
-
-function updateNotifUI(enabled){
-  document.getElementById('notifLabel').textContent = enabled ? 'Включены ✅' : 'Отключены';
-  document.getElementById('notifTrack').style.background = enabled ? 'var(--btn)' : 'rgba(255,255,255,0.15)';
-  document.getElementById('notifThumb').style.transform = enabled ? 'translateX(20px)' : 'translateX(0)';
-}
-
-async function toggleNotif(enabled){
-  S.notifEnabled = enabled;
-  updateNotifUI(enabled);
-  save();
-  if(!userId) return;
-  try{
-    await fetch(`${CFG.BACKEND}/notify/register`,{
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        user_id: userId,
-        chat_id: userId,
-        enabled: enabled,
-      })
-    });
-    tg?.showAlert?.(enabled ? '🔔 Уведомления включены!' : '🔕 Уведомления отключены');
-  }catch(e){}
-}
-function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function showOfflineModal(txt){document.getElementById('ofAmt').textContent=txt;document.getElementById('ofModal').classList.add('show');}
+function closeOfflineModal(){document.getElementById('ofModal').classList.remove('show');}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 </script>
 </body>
 </html>
