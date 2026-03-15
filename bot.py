@@ -54,6 +54,29 @@ def send(chat_id, text, keyboard=None):
         data['reply_markup'] = json.dumps(keyboard)
     return api('sendMessage', data)
 
+def get_invoice_links(chat_id):
+    """Создаёт инвойс-ссылки для всех товаров"""
+    products = [
+        ('⚡ Полный заряд аппетита', 'Восстановить всю энергию Васи мгновенно', 'energy_refill', 50),
+        ('🥕×2 Двойной доход',       'Двойной доход от тапов на 1 час',          'double_tap',    100),
+        ('🏅 Золотая Вася',          'Уникальный золотой скин навсегда',          'gold_skin',     500),
+        ('🚀 Стартовый пак',         '+5000 морковок сразу на счёт',              'starter_pack',  200),
+    ]
+    results = []
+    for title, desc, payload, amount in products:
+        data = {
+            'chat_id': chat_id,
+            'title': title,
+            'description': desc,
+            'payload': payload,
+            'currency': 'XTR',
+            'prices': [{'label': title, 'amount': amount}]
+        }
+        result = api('createInvoiceLink', data)
+        link = result.get('result', '')
+        results.append(f'{payload}: {link}')
+    return results
+
 def handle(msg):
     if 'text' not in msg:
         return
@@ -61,6 +84,17 @@ def handle(msg):
     text    = msg['text']
     name    = msg.get('from', {}).get('first_name', 'друг')
 
+if text == '/getlinks':
+    # Только для тебя — замени на свой Telegram ID
+    YOUR_ID = 235364213  # ← замени на свой ID (из refUrl в игре)
+    if msg.get('from', {}).get('id') != YOUR_ID:
+        send(chat_id, '❌ Нет доступа')
+        return
+    send(chat_id, '⏳ Создаю ссылки...')
+    links = get_invoice_links(chat_id)
+    send(chat_id, '✅ Инвойс-ссылки:\n\n' + '\n\n'.join(links))
+    return
+    
     if text.startswith('/start'):
         keyboard = {'inline_keyboard': [[{
             'text': '🦫 Играть',
