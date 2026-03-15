@@ -392,8 +392,8 @@ const CFG = {
   APP:     'kapibarabigclub',
   MAX_OFFLINE_H: 8,
   SAVE_EVERY_S:  15,
-  HUNGER_DRAIN_PER_HOUR:  5,
-  HUNGER_RESTORE_PER_TAP: 0.3,
+  HUNGER_DRAIN_PER_HOUR:  15,
+  HUNGER_RESTORE_PER_TAP: 0.5,
 };
 
 const STAGES = [
@@ -499,7 +499,7 @@ function loop(){
   const hm=hungerMultiplier();
   psAcc+=S.ps*dt*hm;
   if(psAcc>=1){ const e=Math.floor(psAcc); S.coins+=e; S.total+=e; psAcc-=e; }
-  if(S.energy<S.maxE) S.energy=Math.min(S.maxE,S.energy+dt);
+  if (S.energy < S.maxE) S.energy = Math.min(S.maxE, S.energy + dt * 0.3);
   S.hunger=Math.max(0,S.hunger-(CFG.HUNGER_DRAIN_PER_HOUR/3600)*dt);
   if(S.hunger<20&&!hungerModalShown){
     hungerModalShown=true;
