@@ -252,6 +252,10 @@
     <div class="star-item"><div class="star-info"><h4>⚡ Полный заряд</h4><p>Восстановить всю энергию</p></div><button class="star-btn" onclick="buyStars('energy')">50 ⭐</button></div>
     <div class="star-item"><div class="star-info"><h4>🥕×2 бонус</h4><p>Двойной тап на 1 час</p></div><button class="star-btn" onclick="buyStars('double')">100 ⭐</button></div>
     <div class="star-item"><div class="star-info"><h4>🏅 Золотая Вася</h4><p>Уникальный скин навсегда</p></div><button class="star-btn" onclick="buyStars('skin')">500 ⭐</button></div>
+    <div class="star-item">
+      <div class="star-info"><h4>🚀 Стартовый пак</h4><p>+5 000 морковок сразу на счёт</p></div>
+      <button class="star-btn" onclick="buyStars('starter')">200 ⭐</button>
+    </div>  
   </div>
 </div>
 
@@ -363,7 +367,13 @@ function playTap(earn){try{const ctx=getAudio(),osc=ctx.createOscillator(),gain=
 function playEvolve(){try{const ctx=getAudio(),notes=[523,659,784,1047];notes.forEach((freq,i)=>{const osc=ctx.createOscillator(),gain=ctx.createGain();osc.connect(gain);gain.connect(ctx.destination);const t=ctx.currentTime+i*.12;osc.frequency.setValueAtTime(freq,t);gain.gain.setValueAtTime(.15,t);gain.gain.exponentialRampToValueAtTime(.001,t+.2);osc.type='sine';osc.start(t);osc.stop(t+.2);});}catch(e){}}
 function playDaily(){try{const ctx=getAudio(),notes=[784,988,1175];notes.forEach((freq,i)=>{const osc=ctx.createOscillator(),gain=ctx.createGain();osc.connect(gain);gain.connect(ctx.destination);const t=ctx.currentTime+i*.15;osc.frequency.setValueAtTime(freq,t);gain.gain.setValueAtTime(.12,t);gain.gain.exponentialRampToValueAtTime(.001,t+.25);osc.type='triangle';osc.start(t);osc.stop(t+.25);});}catch(e){}}
 
-function buyStars(product){const links={energy:'https://t.me/invoice/energy_refill_link',double:'https://t.me/invoice/double_tap_link',skin:'https://t.me/invoice/gold_skin_link'};if(tg?.openInvoice){tg.openInvoice(links[product],(status)=>{if(status==='paid'){if(product==='energy'){S.energy=S.maxE;tg?.showAlert?.('⚡ Энергия восстановлена!');}if(product==='double'){bonusTap=2;bonusEnd=Date.now()+3600000;tg?.showAlert?.('🥕×2 активирован на 1 час!');}if(product==='skin')tg?.showAlert?.('🏅 Золотая Вася активирована!');}});}else window.open(links[product]);}
+function buyStars(product){
+  const links={
+    energy:'https://t.me/$FK33ihHtuEl2FAAArqMht_lCnpU',
+    double:'https://t.me/$M0WbJxHtuEl3FAAADo8MlO9HdnU',
+    skin:  'https://t.me/$XV-0jhHtuEl4FAAA9xIyMl0WHTo',
+    starter:'https://t.me/$9LTxARHtuEl5FAAAYUMxdO7MvGo',
+  };
 let AdController;
 async function initAds(){try{AdController=await window.Adsgram?.init({blockId:'ТВОЙ_BLOCK_ID',debug:false});}catch(e){}}
 async function watchAd(){if(!AdController){tg?.showAlert?.('Реклама пока недоступна');return;}try{const r=await AdController.show();if(r.done){S.energy=Math.min(S.maxE,S.energy+200);tg?.showAlert?.('⚡ +200 энергии!');}}catch(e){tg?.showAlert?.('Реклама не загрузилась.');}}
