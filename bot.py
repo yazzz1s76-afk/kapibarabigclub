@@ -4,6 +4,7 @@ TOKEN    = os.environ['BOT_TOKEN']
 APP_URL  = 'https://kapibarabigclub.pages.dev'
 API      = f'https://api.telegram.org/bot{TOKEN}'
 BACKEND  = 'https://kapibarabigclub.onrender.com'
+YOUR_ID  = 235364213
 OFFSET   = 0
 
 NOTIF_MESSAGES = [
@@ -14,7 +15,7 @@ NOTIF_MESSAGES = [
     '⚡ Аппетит Васи полный! Самое время потапать.',
 ]
 
-def api(method, data):
+def api_call(method, data):
     req = urllib.request.Request(
         f'{API}/{method}',
         data=json.dumps(data).encode(),
@@ -32,7 +33,7 @@ def backend_get(path):
         with urllib.request.urlopen(f'{BACKEND}{path}', timeout=10) as r:
             return json.loads(r.read())
     except Exception as e:
-        print(f'Backend error {path}: {e}')
+        print(f'Backend GET error {path}: {e}')
         return {}
 
 def backend_post(path, data):
@@ -52,15 +53,14 @@ def send(chat_id, text, keyboard=None):
     data = {'chat_id': chat_id, 'text': text, 'parse_mode': 'HTML'}
     if keyboard:
         data['reply_markup'] = json.dumps(keyboard)
-    return api('sendMessage', data)
+    return api_call('sendMessage', data)
 
 def get_invoice_links(chat_id):
-    """Создаёт инвойс-ссылки для всех товаров"""
     products = [
         ('⚡ Полный заряд аппетита', 'Восстановить всю энергию Васи мгновенно', 'energy_refill', 50),
         ('🥕×2 Двойной доход',       'Двойной доход от тапов на 1 час',          'double_tap',    100),
-        ('🏅 Золотая Вася',          'Уникальный золотой скин навсегда',          'gold_skin',     500),
         ('🚀 Стартовый пак',         '+5000 морковок сразу на счёт',              'starter_pack',  200),
+        ('🏅 Золотая Вася',          'Уникальный золотой скин навсегда',          'gold_skin',     500),
     ]
     results = []
     for title, desc, payload, amount in products:
@@ -72,9 +72,9 @@ def get_invoice_links(chat_id):
             'currency': 'XTR',
             'prices': [{'label': title, 'amount': amount}]
         }
-        result = api('createInvoiceLink', data)
-        link = result.get('result', '')
-        results.append(f'{payload}: {link}')
+        result = api_call('createInvoiceLink', data)
+        link = result.get('result', 'ОШИБКА')
+        results.append(f'<b>{payload}:</b>\n{link}')
     return results
 
 def handle(msg):
@@ -83,18 +83,17 @@ def handle(msg):
     chat_id = msg['chat']['id']
     text    = msg['text']
     name    = msg.get('from', {}).get('first_name', 'друг')
+    user_id = msg.get('from', {}).get('id', 0)
 
-if text == '/getlinks':
-    # Только для тебя — замени на свой Telegram ID
-    YOUR_ID = 235364213  # ← замени на свой ID (из refUrl в игре)
-    if msg.get('from', {}).get('id') != YOUR_ID:
-        send(chat_id, '❌ Нет доступа')
+    if text == '/getlinks':
+        if user_id != YOUR_ID:
+            send(chat_id, '❌ Нет доступа')
+            return
+        send(chat_id, '⏳ Создаю ссылки...')
+        links = get_invoice_links(chat_id)
+        send(chat_id, '✅ Инвойс-ссылки:\n\n' + '\n\n'.join(links))
         return
-    send(chat_id, '⏳ Создаю ссылки...')
-    links = get_invoice_links(chat_id)
-    send(chat_id, '✅ Инвойс-ссылки:\n\n' + '\n\n'.join(links))
-    return
-    
+
     if text.startswith('/start'):
         keyboard = {'inline_keyboard': [[{
             'text': '🦫 Играть',
@@ -109,7 +108,9 @@ if text == '/getlinks':
             'Нажми кнопку ниже чтобы начать:',
             keyboard
         )
-    elif text.startswith('/help'):
+        return
+
+    if text.startswith('/help'):
         send(chat_id,
             '🦫 <b>Помощь</b>\n\n'
             '🥕 Тапай на Васю — получай морковки\n'
@@ -121,7 +122,6 @@ if text == '/getlinks':
         )
 
 def send_notifications():
-    """Отправляет уведомления каждые 30 минут"""
     while True:
         try:
             data = backend_get('/notify/pending')
@@ -136,20 +136,19 @@ def send_notifications():
                 result = send(u['chat_id'], msg, keyboard)
                 if result.get('ok'):
                     backend_post('/notify/sent', {'user_id': u['user_id']})
-                time.sleep(0.3)  # пауза между отправками
+                time.sleep(0.3)
         except Exception as e:
             print(f'Ошибка уведомлений: {e}')
-        time.sleep(1800)  # 30 минут
+        time.sleep(1800)
 
 def main():
     global OFFSET
     print('Бот запущен!')
-    # Запускаем уведомления в фоне
     t = threading.Thread(target=send_notifications, daemon=True)
     t.start()
     while True:
         try:
-            resp = api('getUpdates', {
+            resp = api_call('getUpdates', {
                 'offset': OFFSET,
                 'timeout': 30,
                 'allowed_updates': ['message']
