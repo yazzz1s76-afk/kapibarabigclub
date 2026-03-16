@@ -622,7 +622,7 @@ function buyStars(product){
 
 /* ── ADS ── */
 let AdController;
-async function initAds(){try{AdController=await window.Adsgram?.init({blockId:'25203',debug:false});}catch(e){}}
+async function initAds(){try{AdController=await window.Adsgram?.init({blockId:'25238',debug:false});}catch(e){}}
 async function watchAd(){
   if(!AdController){tg?.showAlert?.('Реклама пока недоступна');return;}
   try{const r=await AdController.show();if(r.done){S.energy=Math.min(S.maxE,S.energy+200);tg?.showAlert?.('⚡ +200 энергии!');}}
