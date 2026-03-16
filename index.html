@@ -22,7 +22,7 @@
   .bg-blob{position:absolute;border-radius:50%;filter:blur(60px);opacity:.12;animation:blobFloat 12s ease-in-out infinite}
   .bg-blob:nth-child(1){width:280px;height:280px;background:#a78bfa;top:-60px;left:-60px;animation-delay:0s}
   .bg-blob:nth-child(2){width:220px;height:220px;background:#4ecdc4;top:30%;right:-40px;animation-delay:4s}
-  .bg-blob:nth-child(3){width:200px;height:200px;background:#f0a500;bottom:-40px;left:20%;animation-delay:8s}
+  .bg-blob:nth-child(3){wth:200px;height:200px;background:#f0a500;bottom:-40px;left:20%;animation-delay:8s}
   @keyframes blobFloat{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(15px,-20px) scale(1.05)}66%{transform:translate(-10px,15px) scale(.95)}}
   .header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(26,26,46,.85);backdrop-filter:blur(12px);border-bottom:1px solid rgba(167,139,250,.15);flex-shrink:0;gap:6px;position:relative;z-index:10}
   .coins-disp{display:flex;align-items:center;gap:6px;font-size:20px;font-weight:800;color:var(--gold2);text-shadow:0 0 20px rgba(240,165,0,.4)}
@@ -622,7 +622,7 @@ function buyStars(product){
 
 /* ── ADS ── */
 let AdController;
-async function initAds(){try{AdController=await window.Adsgram?.init({blockId:'25238',debug:false});}catch(e){}}
+async function initAds(){try{AdController=await window.Adsgram?.init({blockId:'25241',debug:false});}catch(e){}}
 async function watchAd(){
   if(!AdController){tg?.showAlert?.('Реклама пока недоступна');return;}
   try{const r=await AdController.show();if(r.done){S.energy=Math.min(S.maxE,S.energy+200);tg?.showAlert?.('⚡ +200 энергии!');}}
